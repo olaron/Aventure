@@ -1,0 +1,32 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+
+body{
+    background-color: #222222;
+    color: #dddddd;
+}
+
+#main{
+    padding: 20px;
+    font-size: 200%;
+}
+
+.toHide{
+    display: none;
+}
+
+#content{
+    display: block;
+}
+
+
+
+
+
+
+
+
