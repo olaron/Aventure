@@ -1,123 +1,57 @@
-/*Array.prototype.look = function(t){
-    for (var i = 0; i<this.length; i++){
-        if(this[i]==t){
-            return i;
-        }
-    }
-    return -1;
+function newButton(id, type, text, icon,clickCallback){
+    var icon = $("<span>")
+        .attr("class", "glyphicon glyphicon-"+icon)
+        .attr("aria-hidden", "true");
+    var button = $('<button>')
+        .attr("class", "btn btn-default")
+        .attr("type", type)
+        .attr("id", id)
+        .click(clickCallback)
+        .append(icon , " "+text);
+    return button;
 }
 
-var o = [1,4,5,'test'];
-
-console.log(o.look('teest'));
-
-try{
-    fonctionlol()
-} catch(e) {
-    console.log(e.name + ' - ' + e.message);
-} finally {
-    console.log('Finally !')
-}
-*/
-/*
-var tab = {};
-tab['a'] = 12;
-tab['b'] = "test";
-
-console.log(tab['b']);
-console.log(tab.length);
-*/
-/*
-function Identite(nom,prenom){
-    this.nom = nom;
-    this.prenom = prenom;
+function newInput(id, type, name, placeholder){
+    var input = $("<input>")
+        .attr("class", "form-control")
+        .attr("type", type)
+        .attr("name",name)
+        .attr("id", id)
+        .attr("placeholder", placeholder);
+    return input;
 }
 
-Identite.prototype.laTotale = function (){
-    return this.nom + ' - ' + this.prenom;
+function newTextarea(id, placeholder, value){
+    var input = $("<textarea>")
+        .attr("class", "form-control")
+        .attr("id", id)
+        .attr("placeholder", placeholder)
+        .val(value);
+    return input;
 }
 
-Identite.prototype.taille = 175;
-
-var o = new Identite('pons', 'olivier');
-var p = new Identite('pons', 'olivier2');
-
-console.log(o.laTotale());
-console.log(Identite.prototype);
-console.log(o.taille);
-console.log(p.taille);
-o.taille = 200;
-console.log(o.taille);
-console.log(p.taille);
-*/
-
-//QCM: qui est le createur de jQuery?
-
-/*
-$(document).ready(OnReady());
-
-var OnReady = function(){
-
-});
-*/
-
-//QCM $("form")
-// revoyer "false" dans un callback de la fonction $("form").submit(Callback) interompt l'envoi au serveur
-
-/*
-$(document).ready(OnReady);
-function OnReady(){
-    $("form").submit(OnSubmit);
-}
-function OnSubmit(data){
-    $.ajax({
-        type: $(this).attr("method"),
-        url: $(this).attr("action"),
-        data: $(this).serialize(),
-        success: OnSuccess
-    });
-    return false;
-}
-function OnSuccess(data){
-    $("#result").html(data); // le serveur doit renvoyer du JSON
+function newFormulaire(id,inputs,submitCallback){
+    var form = $("<form>")
+        .attr("id",id)
+        .attr("class","toHide")
+        .submit(submitCallback)
+        .append(inputs);
+    return form;
 }
 
-{
-    success: true,
-    message: "bien"
+function creerFormulaireEdition(content){
+    $("#form-ecrire").remove();
+    return newFormulaire("form-ecrire",
+        [
+            newTextarea("text-ecrire","Écrivez ici",content),
+            newButton("bouton-valider-ecrire","submit","Valider","ok"),
+            newButton("bouton-annuler","button","Annuler", "remove",DisplayNode)
+        ],
+        RequestNewNode
+    );
 }
-*/
-/*
-$(document).ready(OnReady);
-function OnReady(){
-    $("#form-souscription").submit(OnSubmit);
-}
-function OnSubmit(data){
-    var data = $(this).serialize();
-    $(this).find(":input").prop("disabled", true);
-    $(this).slideUp(function(){
-        $(this).find(":input").removeAttr("disabled");
-    });
-    $.ajax({
-        type: $(this).attr("method"),
-        url: $(this).attr("action"),
-        data: data,
-        success: OnSuccess
-    });
 
-    return false;
-}
-function OnSuccess(data){
-    $("#result").fadeOut(function(){
-        $(this)
-            .html(data.message)
-            .fadeIn();
-    });
-    if(!data.success){
-        $("#form-souscription").slideDown();
-    }
-}
-*/
+
 
 function getURLVariable(variable){
     var vars = location.search.substring(1).split("&");
@@ -142,8 +76,13 @@ $(document).ready(function(){
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
         HideAll(function(){
+            /*
             $("#text-ecrire").val(node.content);
             $("#form-ecrire").fadeIn();
+            */
+            var form = creerFormulaireEdition(node.content);
+            $("#main").prepend(form);
+            form.fadeIn();
         })
     });
     $("#form-ecrire").submit(RequestNewNode);
@@ -152,7 +91,7 @@ $(document).ready(function(){
     $("#bouton-ajouter-choix").click(function(){
         $("#form-choice").fadeIn();
     });
-    $("#form-ecrire").submit(RequestNewLink);
+    //$("#form-ecrire").submit(RequestNewLink);
 
 });
 
