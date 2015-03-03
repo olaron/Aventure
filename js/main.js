@@ -30,17 +30,39 @@ function newTextarea(id, placeholder, value){
     return input;
 }
 
+function newHiddenInput(name,value){
+    var input = $("<input>")
+        .attr("type","hidden")
+        .attr("name",name)
+        .attr("value",value);
+    return input;
+}
+
+function newInputGroup(inputs){
+    var group = $("<div>")
+        .attr("class","input-group")
+        .append(inputs);
+    return group;
+}
+
+function newButtonGroup(buttons){
+    var group = $("<span>")
+        .attr("class","input-group-btn")
+        .append(buttons);
+    return group;
+}
+
 function newFormulaire(id,inputs,submitCallback){
+    $("#"+id).remove();
     var form = $("<form>")
         .attr("id",id)
         .attr("class","toHide")
         .submit(submitCallback)
-        .append(inputs);
+        .append(inputs,newHiddenInput("id",id));
     return form;
 }
 
-function creerFormulaireEdition(content){
-    $("#form-ecrire").remove();
+function creerFormEdition(content){
     return newFormulaire("form-ecrire",
         [
             newTextarea("text-ecrire","Écrivez ici",content),
@@ -51,7 +73,26 @@ function creerFormulaireEdition(content){
     );
 }
 
-
+function creerFormLien(){
+    return newFormulaire("form-choice",
+        [
+            newInputGroup(
+                [
+                    newInput("","text","choix","Choix"),
+                    $("<span>").attr("class","input-group-addon"),
+                    newInput("","text","destination", "ID de destination"),
+                    newButtonGroup(
+                        [
+                            newButton("bouton-valider-choix","submit","Valider", "ok"),
+                            newButton("bouton-annuler-choix","button","Annuler","remove")
+                        ]
+                    )
+                ]
+            )
+        ],
+        RequestNewLink
+    );
+}
 
 function getURLVariable(variable){
     var vars = location.search.substring(1).split("&");
@@ -80,16 +121,20 @@ $(document).ready(function(){
             $("#text-ecrire").val(node.content);
             $("#form-ecrire").fadeIn();
             */
-            var form = creerFormulaireEdition(node.content);
+            var form = creerFormEdition(node.content);
             $("#main").prepend(form);
             form.fadeIn();
         })
     });
-    $("#form-ecrire").submit(RequestNewNode);
-    $("#bouton-annuler").click(DisplayNode);
+    //$("#form-ecrire").submit(RequestNewNode);
+    //$("#bouton-annuler").click(DisplayNode);
 
     $("#bouton-ajouter-choix").click(function(){
-        $("#form-choice").fadeIn();
+        //$("#form-choice").fadeIn();
+        var form = creerFormLien();
+        $("#main-choices").prepend(form);
+        form.fadeIn();
+
     });
     //$("#form-ecrire").submit(RequestNewLink);
 
@@ -97,6 +142,7 @@ $(document).ready(function(){
 
 function RequestNewLink(){
 
+    return false;
 }
 
 function RequestNewNode(){
