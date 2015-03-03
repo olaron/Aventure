@@ -23,10 +23,6 @@ body{
     display: block;
 }
 
-
-
-
-
-
-
-
+.navbar-hide{
+    display: none;
+}

@@ -8,12 +8,24 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Content-type: application/json');
 
-if(isset($_SESSION["pseudo"])){
-    if(!empty($_SESSION["pseudo"])){
-
+if($_POST["action"] == "session"){
+    if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+        $retour = array(
+            'success' => true,
+            'connecte' => true,
+            'pseudo' => $_SESSION["pseudo"]
+        );
+    }
+    else{
+        $retour = array(
+            'success' => true,
+            'connecte' => false
+        );
     }
 }
+elseif(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
 
+}
 
 
 echo json_encode($retour);

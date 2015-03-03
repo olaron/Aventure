@@ -105,38 +105,89 @@ function getURLVariable(variable){
     return false;
 }
 
-$(document).ready(function(){
-    $(".toHide").hide();
-
+function getId(){
     id = getURLVariable("id");
     if (!id) {
         id = "start";
         history.replaceState(null,null,location.href+"?id="+id);
     }
     RequestNode(id);
+}
+
+function ajaxError(resultat, statut, erreur){
+    console.log(resultat);
+    console.log(statut);
+    console.log(erreur);
+}
+
+function requestSession(){
+    $.ajax({
+        type: "POST",
+        url: "ajax.php",
+        data: {action: "session"},
+        success: onSessionSuccess,
+        error: ajaxError
+    });
+}
+
+function onSessionSuccess(data){
+    if(data.connecte){
+        $("#connecte").fadeIn();
+        $("#pseudo").html(data.pseudo);
+    }
+    else{
+        $("#pas-connecte").fadeIn();
+    }
+}
+
+$(document).ready(function(){
+    $(".toHide").hide();
+
+    getId();
+
+    requestSession();
+
+    $("#btn-inscription").click(function(){
+        $(".navbar-hide")
+            .fadeOut()
+            .promise()
+            .done(function(){
+                $("#form-inscription").fadeIn();
+            })
+    });
+
+    $("#btn-connexion").click(function(){
+        $(".navbar-hide")
+            .fadeOut()
+            .promise()
+            .done(function(){
+                $("#form-connexion").fadeIn();
+            })
+    });
+
+    $(".btn-retour").click(function(){
+        $(".navbar-hide")
+            .fadeOut()
+            .promise()
+            .done(function(){
+                $("#pas-connecte").fadeIn();
+            })
+    });
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
         HideAll(function(){
-            /*
-            $("#text-ecrire").val(node.content);
-            $("#form-ecrire").fadeIn();
-            */
             var form = creerFormEdition(node.content);
             $("#main").prepend(form);
             form.fadeIn();
         })
     });
-    //$("#form-ecrire").submit(RequestNewNode);
-    //$("#bouton-annuler").click(DisplayNode);
 
     $("#bouton-ajouter-choix").click(function(){
-        //$("#form-choice").fadeIn();
         var form = creerFormLien();
         $("#main-choices").prepend(form);
         form.fadeIn();
 
     });
-    //$("#form-ecrire").submit(RequestNewLink);
 
 });
 
