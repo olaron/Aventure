@@ -38,10 +38,12 @@ class User {
         return ($hash === $user->getHash());
     }
 
+    public static function checkPseudo($pseudo){
+        return DB::isResultNull(DB::sendQuery("select * from users where pseudo = '$pseudo'"));
+    }
+
     public static function addUser($pseudo,$pass){
-        if (DB::isResultNull(
-                DB::sendQuery("select * from users where pseudo = '$pseudo'"))
-        ){
+        if (User::checkPseudo($pseudo)){
             $salt = openssl_random_pseudo_bytes(64);
             $hash = hash("sha256",$salt.$pass);
             DB::sendQuery("insert into users (pseudo, hash, salt)
