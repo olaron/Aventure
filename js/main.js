@@ -2,9 +2,9 @@
 ////////// Edition //////////
 
 function creerFormEdition(content){
-    return newFormulaire("form-ecrire","ecriture","toHide",
+    return newFormulaire("form-ecrire","edition","toHide",
         [
-            newTextarea("text-ecrire","Écrivez ici",content),
+            newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
             newButton("bouton-annuler","button","Annuler","btn-danger", "remove",DisplayNode),
             newHiddenInput("id",id)
@@ -14,11 +14,13 @@ function creerFormEdition(content){
 }
 
 function RequestNewNode(){
-    var content = $("#text-ecrire").val();
+    //var content = $("#text-ecrire").val();
+    var data = $(this).serialize();
     $(this).find(":input").prop("disabled", true);
     HideAll(function(){
         $(this).find(":input").removeAttr("disabled");
     });
+    /*
     $.ajax({
         type: "POST",
         url: "newNode.php",
@@ -26,11 +28,13 @@ function RequestNewNode(){
         success: OnNewNodeSuccess,
         error: function(){console.log("Error in RequestNewNode()")}
     });
+    */
+    ajaxRequest(onNewNodeSuccess,data);
     return false;
 }
 
-function OnNewNodeSuccess(data){
-    if(data.success){
+function onNewNodeSuccess(data){
+    if(!data.erreurAuteur){
         RequestNode();
     }
     else{
@@ -45,6 +49,7 @@ function OnNewNodeSuccess(data){
 ////////// Lien //////////
 
 function creerFormLien(){
+    /*
     return newFormulaire("form-choice","lien","toHide",
         [
             newInputGroup(
@@ -58,6 +63,21 @@ function creerFormLien(){
                             newButton("bouton-annuler-choix","button","Annuler","","remove")
                         ]
                     )
+                ]
+            ),
+            newHiddenInput("id",id)
+        ],
+        RequestNewLink
+    );
+    */
+    return newFormulaire("form-choice","lien","toHide",
+        [
+            newInput("choix","text","Choix"),
+            newInput("destination", "text", "ID de destination"),
+            newButtonGroup(
+                [
+                    newButton("bouton-valider-choix","submit","Valider","", "ok"),
+                    newButton("bouton-annuler-choix","button","Annuler","","remove")
                 ]
             ),
             newHiddenInput("id",id)
@@ -91,6 +111,7 @@ function creerFormInscription(){
 
 function requestInscription(){
     $("#errors").html();
+    /*
     $.ajax({
         type: "POST",
         url: "ajax.php",
@@ -98,6 +119,8 @@ function requestInscription(){
         success: onInscription,
         error: ajaxError
     });
+    */
+    ajaxRequest(onInscription,$(this).serialize());
     return false;
 }
 
@@ -151,13 +174,7 @@ function retourNavbar(){
 }
 
 function requestConnexion(){
-    $.ajax({
-        type: "POST",
-        url: "ajax.php",
-        data: $(this).serialize(),
-        success: onConnexion,
-        error: ajaxError
-    });
+    ajaxRequest(onConnexion,$(this).serialize());
     return false;
 }
 
@@ -179,13 +196,7 @@ function onConnexion(data){
 ////////// Deconnexion //////////
 
 function requestDeconnexion(){
-    $.ajax({
-        type: "POST",
-        url: "ajax.php",
-        data: {action: "deconnexion"},
-        success: onDeconnexion,
-        error: ajaxError
-    });
+    ajaxRequest(onDeconnexion,{action: "deconnexion"});
 }
 
 function onDeconnexion(){
@@ -241,7 +252,7 @@ $(document).ready(function(){
 
     $("#bouton-ajouter-choix").click(function(){
         var form = creerFormLien();
-        $("#main-choices").prepend(form);
+        $("#choices").prepend(form);
         form.fadeIn();
     });
 
@@ -253,13 +264,7 @@ $(document).ready(function(){
 // Requêtes de démarrage //
 
 function requestSession(){
-    $.ajax({
-        type: "POST",
-        url: "ajax.php",
-        data: {action: "session"},
-        success: onSessionSuccess,
-        error: ajaxError
-    });
+    ajaxRequest(onSessionSuccess,{action: "session"});
 }
 
 function onSessionSuccess(data){
@@ -296,77 +301,6 @@ function OnRequestNodeSuccess(node){
 ////////////////////
 
 
-// Générateurs de formulaires //
-
-function newButton(id, type, text,classe, icon, clickCallback){
-    if(!!icon){
-        var glyph = $("<span>")
-            .attr("class", "glyphicon glyphicon-"+icon)
-            .attr("aria-hidden", "true");
-    }
-    else{
-        var glyph = "";
-    }
-
-    if(!classe){
-        classe = "btn-default"
-    }
-
-    return $('<button>')
-        .attr("class", "btn "+classe)
-        .attr("type", type)
-        .attr("id", id)
-        .click(clickCallback)
-        .append(glyph , " "+text);
-}
-
-function newInput(name, type, placeholder){
-    return $("<input>")
-        .attr("class", "form-control")
-        .attr("type", type)
-        .attr("name",name)
-        .attr("placeholder", placeholder);
-}
-
-function newTextarea(id, placeholder, value){
-    return $("<textarea>")
-        .attr("class", "form-control")
-        .attr("id", id)
-        .attr("placeholder", placeholder)
-        .val(value);
-}
-
-function newHiddenInput(name,value){
-    return $("<input>")
-        .attr("type","hidden")
-        .attr("name",name)
-        .attr("value",value);
-}
-
-function newInputGroup(inputs){
-    return $("<div>")
-        .attr("class","input-group")
-        .append(inputs);
-}
-
-function newButtonGroup(buttons){
-    return $("<span>")
-        .attr("class","input-group-btn")
-        .append(buttons);
-}
-
-function newFormulaire(id,action,classe ,inputs,submitCallback){
-    $("#"+id).remove();
-    return $("<form>")
-        .attr("id",id)
-        .attr("class",classe)
-        .submit(submitCallback)
-        .append(inputs,newHiddenInput("action",action));
-}
-
-////////////////////
-
-
 // Affichage //
 
 function DisplayNode(){
@@ -378,7 +312,7 @@ function DisplayNode(){
 
         }
         else{
-            $("#content").html(node.content)
+            $("#content").html(node.content.replace(/\n/g, "<br>"))
         }
 
         if(node.author === "Master"){ // à modifier
@@ -397,6 +331,12 @@ function hideNavForms(callback){
         .fadeOut()
         .promise()
         .done(callback);
+    $("#errors").slideUp(function(){
+        $("#errors")
+            .slideDown()
+            .html("");
+
+    })
 }
 
 function HideAll(callback){
@@ -431,6 +371,16 @@ function getId(){
     RequestNode(id);
 }
 
+function ajaxRequest(successCallback,data){
+    $.ajax({
+        type: "POST",
+        url: "ajax.php",
+        data: data,
+        success: successCallback,
+        error: ajaxError
+    });
+}
+
 function ajaxError(resultat, statut, erreur){
     console.log(resultat);
     console.log(statut);
@@ -438,3 +388,74 @@ function ajaxError(resultat, statut, erreur){
 }
 
 //////////////////////
+
+
+// Générateurs de formulaires //
+
+function newButton(id, type, text,classe, icon, clickCallback){
+    if(!!icon){
+        var glyph = $("<span>")
+            .attr("class", "glyphicon glyphicon-"+icon)
+            .attr("aria-hidden", "true");
+    }
+    else{
+        var glyph = "";
+    }
+
+    if(!classe){
+        classe = "btn-default"
+    }
+
+    return $('<button>')
+        .attr("class", "btn "+classe)
+        .attr("type", type)
+        .attr("id", id)
+        .click(clickCallback)
+        .append(glyph , " "+text);
+}
+
+function newInput(name, type, placeholder){
+    return $("<input>")
+        .attr("class", "form-control")
+        .attr("type", type)
+        .attr("name",name)
+        .attr("placeholder", placeholder);
+}
+
+function newTextarea(name, placeholder, value){
+    return $("<textarea>")
+        .attr("class", "form-control")
+        .attr("name", name)
+        .attr("placeholder", placeholder)
+        .val(value);
+}
+
+function newHiddenInput(name,value){
+    return $("<input>")
+        .attr("type","hidden")
+        .attr("name",name)
+        .attr("value",value);
+}
+
+function newInputGroup(inputs){
+    return $("<div>")
+        .attr("class","input-group")
+        .append(inputs);
+}
+
+function newButtonGroup(buttons){
+    return $("<span>")
+        .attr("class","input-group-btn")
+        .append(buttons);
+}
+
+function newFormulaire(id,action,classe ,inputs,submitCallback){
+    $("#"+id).remove();
+    return $("<form>")
+        .attr("id",id)
+        .attr("class",classe)
+        .submit(submitCallback)
+        .append(inputs,newHiddenInput("action",action));
+}
+
+////////////////////

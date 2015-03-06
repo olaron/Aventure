@@ -13,7 +13,7 @@ class Node {
     }
 
     public function getContent(){
-        return $this->content;
+        return htmlspecialchars_decode($this->content);
     }
 
     public function getAuthor(){
@@ -40,11 +40,13 @@ class Node {
     }
 
     public static function addNode($id, $author, $content){
+        $content = htmlspecialchars($content);
         DB::sendQuery("insert into nodes (id, author, content)
                             values ('$id', '$author', '$content')");
     }
 
     public static function modifyNode($id, $content){
+        $content = htmlspecialchars($content);
         DB::sendQuery("update nodes set content='$content'
                             where id='$id'");
     }

@@ -65,8 +65,22 @@ elseif($_POST["action"] === "inscription"){
 
 }
 
-elseif(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+elseif($_POST["action"] === "edition"){
+    if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+        $node = Node::getById($_POST["id"]);
 
+        if(!$node){
+            Node::addNode($_POST["id"],$_SESSION["pseudo"],$_POST["content"]);
+        }
+        else{
+            if($node->getAuthor() === $_SESSION["pseudo"]){
+                Node::modifyNode($_POST["id"],$_POST["content"]);
+            }
+            else{
+                $r["erreurAuteur"] = true;
+            }
+        }
+    }
 }
 
 
