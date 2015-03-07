@@ -6,18 +6,18 @@ function creerFormEdition(content){
         [
             newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
-            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",DisplayNode),
+            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayNode),
             newHiddenInput("id",id)
         ],
-        RequestNewNode
+        requestNewNode
     );
 }
 
-function RequestNewNode(){
+function requestNewNode(){
     //var content = $("#text-ecrire").val();
     var data = $(this).serialize();
     $(this).find(":input").prop("disabled", true);
-    HideAll(function(){
+    hideAll(function(){
         $(this).find(":input").removeAttr("disabled");
     });
     /*
@@ -26,7 +26,7 @@ function RequestNewNode(){
         url: "newNode.php",
         data: {user: "Master", id: id, content: content}, //pas sécurisé
         success: OnNewNodeSuccess,
-        error: function(){console.log("Error in RequestNewNode()")}
+        error: function(){console.log("Error in requestNewNode()")}
     });
     */
     ajaxRequest(onNewNodeSuccess,data);
@@ -43,7 +43,7 @@ function onNewNodeSuccess(data){
     }
     else{
         alert("Erreur lors de la requette d'ajout.");
-        DisplayNode();
+        displayNode();
     }
 }
 
@@ -65,11 +65,11 @@ function creerFormLien(){
             ),
             newHiddenInput("id",id)
         ],
-        RequestNewLink
+        requestNewLink
     );
 }
 
-function RequestNewLink(){
+function requestNewLink(){
     ajaxRequest(onNewLink,$(this).serialize());
     return false;
 }
@@ -79,7 +79,7 @@ function onNewLink(data){
         alert("Vous devez être connecté pour effectuer cette action.");
     }
     else{
-        DisplayNode();
+        displayNode();
     }
 
 }
@@ -236,7 +236,7 @@ $(document).ready(function(){
     });
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
-        HideAll(function(){
+        hideAll(function(){
             var form = creerFormEdition(node.content);
             $("#main").prepend(form);
             form.fadeIn();
@@ -265,7 +265,7 @@ function onSessionSuccess(data){
         window.pseudo = data.pseudo;
         $("#pseudo").html(data.pseudo);
         $("#connecte").fadeIn();
-        DisplayNode();
+        displayNode();
     }
     else{
         $("#pas-connecte").fadeIn();
@@ -273,22 +273,13 @@ function onSessionSuccess(data){
 }
 
 function RequestNode(page){
-    ajaxRequest(OnRequestNodeSuccess,{action:"getpage",id:page});
-    /*
-    $.ajax({
-        type: "POST",
-        url: "getNode.php",
-        data: {id: id},
-        success: OnRequestNodeSuccess,
-        error: function(){console.log("Error in RequestNode()")}
-    })
-    */
+    ajaxRequest(onRequestNodeSuccess,{action:"getpage",id:page});
 }
 
-function OnRequestNodeSuccess(node){
+function onRequestNodeSuccess(node){
     if(node.success){
         window.node = node;
-        DisplayNode();
+        displayNode();
     }
     else{
         alert("Erreur lors de la requette d'acquisition.");
@@ -301,8 +292,8 @@ function OnRequestNodeSuccess(node){
 
 // Affichage //
 
-function DisplayNode(){
-    HideAll(function(){
+function displayNode(){
+    hideAll(function(){
         if(node.erreurNotFound){
             $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
             //if utilisateur connecté
@@ -343,6 +334,10 @@ function goToPage(page){
     RequestNode(page);
 }
 
+$(window).on('popstate', function() {
+    getId();
+});
+
 function hideNavForms(callback){
     $(".navbar-hide")
         .fadeOut()
@@ -356,7 +351,7 @@ function hideNavForms(callback){
     })
 }
 
-function HideAll(callback){
+function hideAll(callback){
     $(".toHide")
         .fadeOut()
         .promise()
