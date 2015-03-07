@@ -20,6 +20,28 @@ if($_POST["action"] === "session"){
     }
 }
 
+elseif($_POST["action"] === "getpage"){
+    $node = Node::getById($_POST["id"]);
+
+    if ($node){
+
+        $r['content'] = $node->getContent();
+        $r['author'] = $node->getAuthor();
+        $r['links'] = array();
+        $links = $node->getLinks();
+        foreach($links as $link ){
+            $r['links'][] = array(
+                'action' => $link->getAction(),
+                'leadTo' => $link->getTo(),
+                'author' => $link->getAuthor()
+            );
+        }
+    }
+    else{
+        $r["erreurNotFound"] = true;
+    }
+}
+
 elseif($_POST["action"] === "connexion"){
     if(User::allowConnection($_POST["pseudo"],$_POST["password"])){
         $r['connecte'] = true;
@@ -81,7 +103,20 @@ elseif($_POST["action"] === "edition"){
             }
         }
     }
+    else{
+        $r["erreurLogin"] = true;
+    }
 }
 
+elseif($_POST["action"] === "newlink"){
+    if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+
+
+        Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
+    }
+    else{
+        $r["erreurLogin"] = true;
+    }
+}
 
 echo json_encode($r);

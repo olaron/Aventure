@@ -34,8 +34,12 @@ function RequestNewNode(){
 }
 
 function onNewNodeSuccess(data){
-    if(!data.erreurAuteur){
-        RequestNode();
+    if(data.erreurLogin){
+        alert("Vous devez être connecté pour effectuer cette action.");
+    }
+    else if(!data.erreurAuteur){
+        alert("Vous n'avez pas le droit d'effectuer cette action.");
+        //RequestNode();
     }
     else{
         alert("Erreur lors de la requette d'ajout.");
@@ -49,28 +53,7 @@ function onNewNodeSuccess(data){
 ////////// Lien //////////
 
 function creerFormLien(){
-    /*
-    return newFormulaire("form-choice","lien","toHide",
-        [
-            newInputGroup(
-                [
-                    newInput("choix","text","Choix"),
-                    $("<span>").attr("class","input-group-addon"),
-                    newInput("destination", "text", "ID de destination"),
-                    newButtonGroup(
-                        [
-                            newButton("bouton-valider-choix","submit","Valider","", "ok"),
-                            newButton("bouton-annuler-choix","button","Annuler","","remove")
-                        ]
-                    )
-                ]
-            ),
-            newHiddenInput("id",id)
-        ],
-        RequestNewLink
-    );
-    */
-    return newFormulaire("form-choice","lien","toHide",
+    return newFormulaire("form-choice","newlink","toHide",
         [
             newInput("choix","text","Choix"),
             newInput("destination", "text", "ID de destination"),
@@ -87,8 +70,18 @@ function creerFormLien(){
 }
 
 function RequestNewLink(){
-
+    ajaxRequest(onNewLink,$(this).serialize());
     return false;
+}
+
+function onNewLink(data){
+    if(data.erreurLogin){
+        alert("Vous devez être connecté pour effectuer cette action.");
+    }
+    else{
+        DisplayNode();
+    }
+
 }
 
 ////////////////////
@@ -269,15 +262,19 @@ function requestSession(){
 
 function onSessionSuccess(data){
     if(data.connecte){
+        window.pseudo = data.pseudo;
         $("#pseudo").html(data.pseudo);
         $("#connecte").fadeIn();
+        DisplayNode();
     }
     else{
         $("#pas-connecte").fadeIn();
     }
 }
 
-function RequestNode(){
+function RequestNode(page){
+    ajaxRequest(OnRequestNodeSuccess,{action:"getpage",id:page});
+    /*
     $.ajax({
         type: "POST",
         url: "getNode.php",
@@ -285,6 +282,7 @@ function RequestNode(){
         success: OnRequestNodeSuccess,
         error: function(){console.log("Error in RequestNode()")}
     })
+    */
 }
 
 function OnRequestNodeSuccess(node){
@@ -305,7 +303,7 @@ function OnRequestNodeSuccess(node){
 
 function DisplayNode(){
     HideAll(function(){
-        if(node.notFound){
+        if(node.erreurNotFound){
             $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
             //if utilisateur connecté
             $("#bouton-ecrire").fadeIn();
@@ -315,15 +313,34 @@ function DisplayNode(){
             $("#content").html(node.content.replace(/\n/g, "<br>"))
         }
 
-        if(node.author === "Master"){ // à modifier
+        if(node.author === pseudo){
             $("#bouton-modifier").fadeIn();
         }
 
         $("#content").fadeIn();
 
-        //if utilisateur connecté
-        $("#bouton-ajouter-choix").fadeIn();
+        if(!!pseudo){
+            $("#bouton-ajouter-choix").fadeIn();
+        }
+
+        $("#choices")
+            .fadeIn()
+            .html("");
+        for(var i in node.links){
+            var link = node.links[i];
+            $("#choices").append(newButton("","button",link.action,"","",function(){
+                goToPage(link.leadTo);
+            }))
+        }
+
     });
+}
+
+function goToPage(page){
+    var url = location.href.split("?")[0];
+    console.log(url);
+    history.pushState(null,null,url+"?id="+page);
+    RequestNode(page);
 }
 
 function hideNavForms(callback){
