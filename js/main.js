@@ -14,36 +14,29 @@ function creerFormEdition(content){
 }
 
 function requestNewNode(){
-    //var content = $("#text-ecrire").val();
-    var data = $(this).serialize();
+    var data = $(this).serialize().replace(/\'/g,'\\\'');
+    //console.log(data);
     $(this).find(":input").prop("disabled", true);
     hideAll(function(){
         $(this).find(":input").removeAttr("disabled");
     });
-    /*
-    $.ajax({
-        type: "POST",
-        url: "newNode.php",
-        data: {user: "Master", id: id, content: content}, //pas sécurisé
-        success: OnNewNodeSuccess,
-        error: function(){console.log("Error in requestNewNode()")}
-    });
-    */
     ajaxRequest(onNewNodeSuccess,data);
     return false;
 }
 
 function onNewNodeSuccess(data){
+    //console.log(data);
     if(data.erreurLogin){
         alert("Vous devez être connecté pour effectuer cette action.");
     }
-    else if(!data.erreurAuteur){
+    else if(data.erreurAuteur){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
-        //RequestNode();
+        //requestNode();
     }
     else{
-        alert("Erreur lors de la requette d'ajout.");
-        displayNode();
+        //alert("Erreur lors de la requette d'ajout.");
+        //displayNode();
+        requestNode(id);
     }
 }
 
@@ -57,12 +50,8 @@ function creerFormLien(){
         [
             newInput("choix","text","Choix"),
             newInput("destination", "text", "ID de destination"),
-            newButtonGroup(
-                [
-                    newButton("bouton-valider-choix","submit","Valider","", "ok"),
-                    newButton("bouton-annuler-choix","button","Annuler","","remove")
-                ]
-            ),
+            newButton("bouton-valider-choix","submit","Valider","", "ok"),
+            newButton("bouton-annuler-choix","button","Annuler","","remove"),
             newHiddenInput("id",id)
         ],
         requestNewLink
@@ -70,7 +59,7 @@ function creerFormLien(){
 }
 
 function requestNewLink(){
-    ajaxRequest(onNewLink,$(this).serialize());
+    ajaxRequest(onNewLink,$(this).serialize().replace(/\'/g,'\\\''));
     return false;
 }
 
@@ -104,15 +93,6 @@ function creerFormInscription(){
 
 function requestInscription(){
     $("#errors").html();
-    /*
-    $.ajax({
-        type: "POST",
-        url: "ajax.php",
-        data: $(this).serialize(),
-        success: onInscription,
-        error: ajaxError
-    });
-    */
     ajaxRequest(onInscription,$(this).serialize());
     return false;
 }
@@ -204,6 +184,9 @@ function onDeconnexion(){
 //// Document ready ////
 
 $(document).ready(function(){
+    window.pseudo = "";
+    window.id = "";
+    window.node = {};
     $(".toHide").hide();
 
     getId();
@@ -251,6 +234,12 @@ $(document).ready(function(){
 
 });
 
+
+$(window).on('popstate', function() {
+    getId();
+});
+
+
 /////////////////////
 
 
@@ -272,8 +261,9 @@ function onSessionSuccess(data){
     }
 }
 
-function RequestNode(page){
-    ajaxRequest(onRequestNodeSuccess,{action:"getpage",id:page});
+function requestNode(page){
+
+    ajaxRequest(onRequestNodeSuccess,{action:"getpage",id: page});
 }
 
 function onRequestNodeSuccess(node){
@@ -296,12 +286,18 @@ function displayNode(){
     hideAll(function(){
         if(node.erreurNotFound){
             $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
-            //if utilisateur connecté
-            $("#bouton-ecrire").fadeIn();
-
+            if(!!pseudo){
+                $("#bouton-ecrire").fadeIn();
+            }
         }
         else{
-            $("#content").html(node.content.replace(/\n/g, "<br>"))
+            $("#content").html(node.content.replace(/\n/g, "<br>"));
+            $("#pageName")
+                .fadeIn()
+                .html("Page: "+id);
+            $("#author")
+                .fadeIn()
+                .html("Auteur: "+node.author);
         }
 
         if(node.author === pseudo){
@@ -329,14 +325,11 @@ function displayNode(){
 
 function goToPage(page){
     var url = location.href.split("?")[0];
-    console.log(url);
+    //console.log(url);
     history.pushState(null,null,url+"?id="+page);
-    RequestNode(page);
+    requestNode(page);
 }
 
-$(window).on('popstate', function() {
-    getId();
-});
 
 function hideNavForms(callback){
     $(".navbar-hide")
@@ -380,7 +373,7 @@ function getId(){
         id = "start";
         history.replaceState(null,null,location.href+"?id="+id);
     }
-    RequestNode(id);
+    requestNode(id);
 }
 
 function ajaxRequest(successCallback,data){
@@ -396,7 +389,8 @@ function ajaxRequest(successCallback,data){
 function ajaxError(resultat, statut, erreur){
     console.log(resultat);
     console.log(statut);
-    console.log(erreur);
+    console.log(erreur.message);
+    console.log(erreur.stack);
 }
 
 //////////////////////

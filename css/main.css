@@ -37,3 +37,14 @@ body{
         width: 130px;
     }
 }
+
+@media (min-width: 768px){
+    input .form-control {
+        width: 150px;
+        display: inline;
+    }
+}
+
+#info{
+    font-size: 50%;
+}
