@@ -87,7 +87,7 @@ function creerFormLien(){
             newInput("destination", "text", "ID de destination"),
             newButton("bouton-valider-choix","submit","Valider","", "ok"),
             newButton("bouton-annuler-choix","button","Annuler","","remove"),
-            newHiddenInput("id",id)
+            newHiddenInput("id",node.name)
         ],
         requestNewLink
     );
@@ -220,7 +220,6 @@ function onDeconnexion(){
 
 $(document).ready(function(){
     window.pseudo = "";
-    window.id = "";
     window.node = {};
     $(".toHide").hide();
 
