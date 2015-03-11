@@ -25,6 +25,7 @@ elseif($_POST["action"] === "getpage"){
 
     if ($node){
 
+        $r['name'] = $node->getId();
         $r['content'] = $node->getContent();
         $r['author'] = $node->getAuthor();
         $r['links'] = array();
@@ -55,6 +56,7 @@ elseif($_POST["action"] === "connexion"){
 
 elseif($_POST["action"] === "deconnexion"){
     unset($_SESSION["pseudo"]);
+    session_destroy();
 }
 
 elseif($_POST["action"] === "inscription"){
@@ -110,9 +112,23 @@ elseif($_POST["action"] === "edition"){
 
 elseif($_POST["action"] === "newlink"){
     if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
-
-
         Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
+    }
+    else{
+        $r["erreurLogin"] = true;
+    }
+}
+
+elseif($_POST["action"] === "pageSuppression"){
+    if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+        $node = Node::getById($_POST["id"]);
+
+        if($node->getAuthor() === $_SESSION["pseudo"]){
+            Node::deletePage($_POST["id"]);
+        }
+        else{
+            $r["erreurAuteur"] = true;
+        }
     }
     else{
         $r["erreurLogin"] = true;

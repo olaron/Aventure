@@ -1,3 +1,19 @@
+//qcm .css() .html() .empty() . attr() .text()
+// bind() blur() change() click() hover() keydown() keypress() keyup()
+// off() on() one()
+
+// TODO
+// Suppression des pages
+// Modification / suppression des liens
+// Bouton retour pour les liens
+//
+// griser les formulaires sur les submits
+// Corriger le double fadeIn/fadeOut
+// ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
+//
+// refactoring: node->page / id->pageName / action,choice->link
+// corriger les profils des fonctions de génération de formulaire
+// Trouver un nom de projet
 
 ////////// Edition //////////
 
@@ -7,7 +23,7 @@ function creerFormEdition(content){
             newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
             newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayNode),
-            newHiddenInput("id",id)
+            newHiddenInput("id",node.name)
         ],
         requestNewNode
     );
@@ -36,8 +52,27 @@ function onNewNodeSuccess(data){
     else{
         //alert("Erreur lors de la requette d'ajout.");
         //displayNode();
-        requestNode(id);
+        requestNode(node.name);
     }
+}
+
+function creerFormSupression(){
+    return newFormulaire("form-suppression","pageSuppression","toHide",
+        [
+            newHiddenInput("id",node.name),
+            newButton("","submit","Supprimer","btn-danger","remove")
+        ],
+        requestSuppression
+    )
+}
+
+function requestSuppression(){
+    ajaxRequest(onSuppression,$(this).serialize());
+    return false;
+}
+
+function onSuppression(data){
+    displayNode();
 }
 
 ////////////////////
@@ -199,6 +234,7 @@ $(document).ready(function(){
             var form = creerFormInscription();
             $("#navbar").prepend(form);
             form.fadeIn();
+            prependIn("#navbar",creerFormEdition(node.content));
         })
     });
 
@@ -207,6 +243,7 @@ $(document).ready(function(){
             var form = creerFormConnexion();
             $("#navbar").prepend(form);
             form.fadeIn();
+            prependIn("#main",creerFormEdition(node.content));
         })
     });
 
@@ -220,16 +257,22 @@ $(document).ready(function(){
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
         hideAll(function(){
+            /*
             var form = creerFormEdition(node.content);
             $("#main").prepend(form);
             form.fadeIn();
+            */
+            prependIn("#main",creerFormEdition(node.content));
         })
     });
 
     $("#bouton-ajouter-choix").click(function(){
+        prependIn("#choices",creerFormLien());
+        /*
         var form = creerFormLien();
         $("#choices").prepend(form);
         form.fadeIn();
+        */
     });
 
 });
@@ -239,9 +282,12 @@ $(window).on('popstate', function() {
     getId();
 });
 
-
 /////////////////////
 
+function prependIn(id,form){
+    $(id).prepend(form);
+    form.fadeIn();
+}
 
 // Requêtes de démarrage //
 
@@ -262,7 +308,6 @@ function onSessionSuccess(data){
 }
 
 function requestNode(page){
-
     ajaxRequest(onRequestNodeSuccess,{action:"getpage",id: page});
 }
 
@@ -294,7 +339,7 @@ function displayNode(){
             $("#content").html(node.content.replace(/\n/g, "<br>"));
             $("#pageName")
                 .fadeIn()
-                .html("Page: "+id);
+                .html("Page: "+node.name);
             $("#author")
                 .fadeIn()
                 .html("Auteur: "+node.author);
@@ -302,6 +347,7 @@ function displayNode(){
 
         if(node.author === pseudo){
             $("#bouton-modifier").fadeIn();
+            prependIn("#options",creerFormSupression());
         }
 
         $("#content").fadeIn();
@@ -368,7 +414,7 @@ function getURLVariable(variable){
 }
 
 function getId(){
-    id = getURLVariable("id");
+    var id = getURLVariable("id");
     if (!id) {
         id = "start";
         history.replaceState(null,null,location.href+"?id="+id);
@@ -387,6 +433,7 @@ function ajaxRequest(successCallback,data){
 }
 
 function ajaxError(resultat, statut, erreur){
+    alert("Une erreur AJAX est survenue.");
     console.log(resultat);
     console.log(statut);
     console.log(erreur.message);

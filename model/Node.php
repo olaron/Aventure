@@ -20,6 +20,10 @@ class Node {
         return $this->author;
     }
 
+    public function getId(){
+        return $this->id;
+    }
+
     public function getLinks(){
         if(!$this->links){
             $this->links = Link::getLinksFromId($this->id);
@@ -49,6 +53,10 @@ class Node {
         $content = htmlspecialchars($content);
         DB::sendQuery("update nodes set content='$content'
                             where id='$id'");
+    }
+
+    public static function deletePage($id){
+        DB::sendQuery("DELETE FROM nodes WHERE id = '$id'");
     }
 
 }
