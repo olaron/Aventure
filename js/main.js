@@ -2,8 +2,10 @@
 // bind() blur() change() click() hover() keydown() keypress() keyup()
 // off() on() one()
 
-// TODO
+// DONE
 // Suppression des pages
+
+// TODO
 // Modification / suppression des liens
 // Bouton retour pour les liens
 //
@@ -31,7 +33,6 @@ function creerFormEdition(content){
 
 function requestNewNode(){
     var data = $(this).serialize().replace(/\'/g,'\\\'');
-    //console.log(data);
     $(this).find(":input").prop("disabled", true);
     hideAll(function(){
         $(this).find(":input").removeAttr("disabled");
@@ -41,17 +42,13 @@ function requestNewNode(){
 }
 
 function onNewNodeSuccess(data){
-    //console.log(data);
     if(data.erreurLogin){
         alert("Vous devez être connecté pour effectuer cette action.");
     }
     else if(data.erreurAuteur){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
-        //requestNode();
     }
     else{
-        //alert("Erreur lors de la requette d'ajout.");
-        //displayNode();
         requestNode(node.name);
     }
 }
@@ -229,20 +226,13 @@ $(document).ready(function(){
 
     $("#btn-inscription").click(function(){
         hideNavForms(function(){
-            //$("#form-inscription").fadeIn();
-            var form = creerFormInscription();
-            $("#navbar").prepend(form);
-            form.fadeIn();
-            prependIn("#navbar",creerFormEdition(node.content));
+            prependIn("#navbar",creerFormInscription());
         })
     });
 
     $("#btn-connexion").click(function(){
         hideNavForms(function(){
-            var form = creerFormConnexion();
-            $("#navbar").prepend(form);
-            form.fadeIn();
-            prependIn("#main",creerFormEdition(node.content));
+            prependIn("#navbar",creerFormConnexion());
         })
     });
 
@@ -256,22 +246,12 @@ $(document).ready(function(){
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
         hideAll(function(){
-            /*
-            var form = creerFormEdition(node.content);
-            $("#main").prepend(form);
-            form.fadeIn();
-            */
             prependIn("#main",creerFormEdition(node.content));
         })
     });
 
     $("#bouton-ajouter-choix").click(function(){
         prependIn("#choices",creerFormLien());
-        /*
-        var form = creerFormLien();
-        $("#choices").prepend(form);
-        form.fadeIn();
-        */
     });
 
 });
@@ -360,9 +340,11 @@ function displayNode(){
             .html("");
         for(var i in node.links){
             var link = node.links[i];
-            $("#choices").append(newButton("","button",link.action,"","",function(){
-                goToPage(link.leadTo);
-            }))
+            $("#choices")
+                .append(
+                    newButton("btn-link-"+i,"button",link.action)
+                        .click(link.leadTo,function(e){goToPage(e.data)})
+                );
         }
 
     });
@@ -370,7 +352,6 @@ function displayNode(){
 
 function goToPage(page){
     var url = location.href.split("?")[0];
-    //console.log(url);
     history.pushState(null,null,url+"?id="+page);
     requestNode(page);
 }
