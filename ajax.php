@@ -32,8 +32,8 @@ elseif($_POST["action"] === "getpage"){
         $links = $node->getLinks();
         foreach($links as $link ){
             $r['links'][] = array(
-                'action' => $link->getAction(),
-                'leadTo' => $link->getTo(),
+                'text' => $link->getAction(),
+                'destination' => $link->getTo(),
                 'author' => $link->getAuthor()
             );
         }

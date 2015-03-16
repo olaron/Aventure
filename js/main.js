@@ -25,7 +25,7 @@ function creerFormEdition(content){
             newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
             newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayNode),
-            newHiddenInput("id",node.name)
+            newHiddenInput("id",page.name)
         ],
         requestNewNode
     );
@@ -49,14 +49,14 @@ function onNewNodeSuccess(data){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
     }
     else{
-        requestNode(node.name);
+        requestNode(page.name);
     }
 }
 
 function creerFormSupression(){
     return newFormulaire("form-suppression","pageSuppression","toHide",
         [
-            newHiddenInput("id",node.name),
+            newHiddenInput("id",page.name),
             newButton("","submit","Supprimer","btn-danger","remove")
         ],
         requestSuppression
@@ -84,7 +84,7 @@ function creerFormLien(){
             newInput("destination", "text", "ID de destination"),
             newButton("bouton-valider-choix","submit","Valider","", "ok"),
             newButton("bouton-annuler-choix","button","Annuler","","remove"),
-            newHiddenInput("id",node.name)
+            newHiddenInput("id",page.name)
         ],
         requestNewLink
     );
@@ -217,7 +217,7 @@ function onDeconnexion(){
 
 $(document).ready(function(){
     window.pseudo = "";
-    window.node = {};
+    window.page = {};
     $(".toHide").hide();
 
     getId();
@@ -246,7 +246,7 @@ $(document).ready(function(){
 
     $("#bouton-ecrire,#bouton-modifier").click(function(){
         hideAll(function(){
-            prependIn("#main",creerFormEdition(node.content));
+            prependIn("#main",creerFormEdition(page.content));
         })
     });
 
@@ -290,9 +290,9 @@ function requestNode(page){
     ajaxRequest(onRequestNodeSuccess,{action:"getpage",id: page});
 }
 
-function onRequestNodeSuccess(node){
-    if(node.success){
-        window.node = node;
+function onRequestNodeSuccess(page){
+    if(page.success){
+        window.page = page;
         displayNode();
     }
     else{
@@ -308,23 +308,23 @@ function onRequestNodeSuccess(node){
 
 function displayNode(){
     hideAll(function(){
-        if(node.erreurNotFound){
+        if(page.erreurNotFound){
             $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
             if(!!pseudo){
                 $("#bouton-ecrire").fadeIn();
             }
         }
         else{
-            $("#content").html(node.content.replace(/\n/g, "<br>"));
+            $("#content").html(page.content.replace(/\n/g, "<br>"));
             $("#pageName")
                 .fadeIn()
-                .html("Page: "+node.name);
+                .html("Page: "+page.name);
             $("#author")
                 .fadeIn()
-                .html("Auteur: "+node.author);
+                .html("Auteur: "+page.author);
         }
 
-        if(node.author === pseudo){
+        if(page.author === pseudo){
             $("#bouton-modifier").fadeIn();
             prependIn("#options",creerFormSupression());
         }
@@ -338,12 +338,12 @@ function displayNode(){
         $("#choices")
             .fadeIn()
             .html("");
-        for(var i in node.links){
-            var link = node.links[i];
+        for(var i in page.links){
+            var link = page.links[i];
             $("#choices")
                 .append(
-                    newButton("btn-link-"+i,"button",link.action)
-                        .click(link.leadTo,function(e){goToPage(e.data)})
+                    newButton("btn-link-"+i,"button",link.text)
+                        .click(link.destination,function(e){goToPage(e.data)})
                 );
         }
 
