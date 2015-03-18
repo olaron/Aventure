@@ -5,12 +5,14 @@ class Link {
     private $to;
     private $action;
     private $author;
+    private $id;
 
-    private function __construct($from, $to, $action, $author){
+    private function __construct($from, $to, $action, $author,$id){
         $this->author = $author;
         $this->from = $from;
         $this->to = $to;
         $this->action = $action;
+        $this->id =$id;
     }
 
     public function getFrom()
@@ -33,8 +35,12 @@ class Link {
         return $this->author;
     }
 
+    public function getId(){
+        return $this->id;
+    }
+
     private static function makeLink($row){
-        return new Link($row["from_node"],$row["to_node"],$row["link_action"],$row["pseudo"]);
+        return new Link($row["from_node"],$row["to_node"],$row["link_action"],$row["pseudo"],$row["id_link"]);
     }
 
     public static function getLinksFromId($id){

@@ -34,7 +34,8 @@ elseif($_POST["action"] === "getpage"){
             $r['links'][] = array(
                 'text' => $link->getAction(),
                 'destination' => $link->getTo(),
-                'author' => $link->getAuthor()
+                'author' => $link->getAuthor(),
+                'id' => $link->getId()
             );
         }
     }

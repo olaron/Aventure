@@ -1,6 +1,6 @@
 
 // TODO
-// Modification / suppression des liens
+// suppression des liens
 // Bouton retour pour les liens
 //
 // griser les formulaires sur les submits
@@ -76,14 +76,15 @@ function onSuppression(data){
 
 ////////// Lien //////////
 
-function creerFormLien(){
+function creerFormLien(text,destination,id){
     return newFormulaire("form-choice","newlink","toHide",
         [
-            newInput("choix","text","Choix"),
-            newInput("destination", "text", "ID de destination"),
+            newInput("choix","text","Choix").val(text),
+            newInput("destination", "text", "ID de destination").val(destination),
             newButton("bouton-valider-choix","submit","Valider","", "ok"),
             newButton("bouton-annuler-choix","button","Annuler","","remove"),
-            newHiddenInput("id",page.name)
+            newHiddenInput("id",page.name),
+            newHiddenInput("id_link",id)
         ],
         requestNewLink
     );
@@ -151,6 +152,7 @@ function onInscription(data){
             $("#pseudo").html(data.pseudo);
             $("#connecte").fadeIn();
         });
+        displayNode();
     }
 }
 
@@ -345,12 +347,29 @@ function displayNode(){
             var link = page.links[i];
             $("#choices")
                 .append(
-                    newButton("btn-link-"+i,"button",link.text)
-                        .click(link.destination,function(e){goToPage(e.data)})
+                    newLink(link)
                 );
         }
 
     });
+}
+
+function newLink(link){
+
+    var bouton = [
+        newButton("","button",link.text)
+            .click(link.destination,function(e){goToPage(e.data)})
+    ];
+
+    if(link.author == pseudo){
+        bouton.push(
+            newButton("","button","","","pencil",function(){
+                prependIn("#choices",creerFormLien(link.text,link.destination,link.id));
+            })
+        )
+    }
+
+    return newButtonGroup(bouton)
 }
 
 function goToPage(page){
@@ -481,7 +500,7 @@ function newInputGroup(inputs){
 
 function newButtonGroup(buttons){
     return $("<span>")
-        .attr("class","input-group-btn")
+        .attr("class","btn-group")
         .append(buttons);
 }
 
