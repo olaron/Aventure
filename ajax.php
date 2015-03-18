@@ -112,9 +112,21 @@ elseif($_POST["action"] === "edition"){
     }
 }
 
-elseif($_POST["action"] === "newlink"){
+elseif($_POST["action"] === "link"){
+
     if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
-        Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
+        if(Link::checkLinkId($_POST["id_link"])){
+            Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
+        }
+        else{
+            $node = Link::getLinkById($_POST["id_link"]);
+            if($_SESSION["pseudo"] === $node->getAuthor()){
+                Link::editLink($_POST["id_link"],$_POST["destination"],$_POST["choix"]);
+            }
+            else{
+                $r["erreurAuteur"] = true;
+            }
+        }
     }
     else{
         $r["erreurLogin"] = true;

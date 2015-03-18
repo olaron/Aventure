@@ -77,17 +77,22 @@ function onSuppression(data){
 ////////// Lien //////////
 
 function creerFormLien(text,destination,id){
-    return newFormulaire("form-choice","newlink","toHide",
+
+    return newFormulaire("form-choice","link","toHide",
         [
             newInput("choix","text","Choix").val(text),
             newInput("destination", "text", "ID de destination").val(destination),
             newButton("bouton-valider-choix","submit","Valider","", "ok"),
-            newButton("bouton-annuler-choix","button","Annuler","","remove"),
+            newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
             newHiddenInput("id",page.name),
             newHiddenInput("id_link",id)
         ],
         requestNewLink
     );
+}
+
+function backFormLien(){
+    $("#form-choice").slideUp();
 }
 
 function requestNewLink(){
@@ -98,6 +103,9 @@ function requestNewLink(){
 function onNewLink(data){
     if(data.erreurLogin){
         alert("Vous devez être connecté pour effectuer cette action.");
+    }
+    if(data.erreurAuteur){
+        alert("Vous n'avez pas le droit d'effectuer cette action.");
     }
     else{
         displayNode();

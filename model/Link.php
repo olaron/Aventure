@@ -52,6 +52,15 @@ class Link {
         return $links;
     }
 
+    public static function checkLinkId($id){
+        return DB::isResultNull(DB::sendQuery("select * from links where id_link = '$id'"));
+    }
+
+    public static function getLinkById($id){
+        $result = DB::sendQuery("select * from links where id_link = '$id'");
+        return Link::makeLink($result->fetch_array());
+    }
+
     public static function addLink($from, $to, $action, $author){
         if (DB::isResultNull(
                 DB::sendQuery("select * from links where from_node = '$from'
@@ -61,6 +70,12 @@ class Link {
                           values ('$from', '$action', '$to', '$author' )");
         }
 
+    }
+
+    public static function editLink($id,$destination,$texte){
+        $texte = htmlspecialchars($texte);
+        DB::sendQuery("update links set link_action = '$texte', to_node = '$destination'
+                            where id_link = '$id'");
     }
 
 }
