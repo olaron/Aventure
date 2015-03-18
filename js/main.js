@@ -76,19 +76,28 @@ function onSuppression(data){
 
 ////////// Lien //////////
 
-function creerFormLien(text,destination,id){
+function creerFormLien(text,destination,id,auteur){
 
-    return newFormulaire("form-choice","link","toHide",
-        [
-            newInput("choix","text","Choix").val(text),
-            newInput("destination", "text", "ID de destination").val(destination),
-            newButton("bouton-valider-choix","submit","Valider","", "ok"),
-            newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
-            newHiddenInput("id",page.name),
-            newHiddenInput("id_link",id)
-        ],
-        requestNewLink
-    );
+    var inputs = [
+        newInput("choix","text","Choix").val(text),
+        newInput("destination", "text", "ID de destination").val(destination),
+        newButton("bouton-valider-choix","submit","Valider","", "ok"),
+        newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
+        newHiddenInput("id",page.name),
+        newHiddenInput("id_link",id)
+    ];
+
+    if(auteur == pseudo){
+        inputs.push(newButton("","button","Supprimer","btn-danger","remove")
+                    .click(id,function(e){deleteLink(e.data)})
+        )
+    }
+
+    return newFormulaire("form-choice","link","toHide",inputs, requestNewLink);
+}
+
+function deleteLink(id){
+    // TODO
 }
 
 function backFormLien(){
@@ -372,7 +381,7 @@ function newLink(link){
     if(link.author == pseudo){
         bouton.push(
             newButton("","button","","","pencil",function(){
-                prependIn("#choices",creerFormLien(link.text,link.destination,link.id));
+                prependIn("#choices",creerFormLien(link.text,link.destination,link.id,link.author));
             })
         )
     }
