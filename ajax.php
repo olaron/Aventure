@@ -40,6 +40,7 @@ elseif($_POST["action"] === "getpage"){
     }
     else{
         $r["erreurNotFound"] = true;
+        $r['name'] = $_POST["id"];
     }
 }
 

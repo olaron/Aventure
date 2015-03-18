@@ -1,9 +1,3 @@
-//qcm .css() .html() .empty() . attr() .text()
-// bind() blur() change() click() hover() keydown() keypress() keyup()
-// off() on() one()
-
-// DONE
-// Suppression des pages
 
 // TODO
 // Modification / suppression des liens
@@ -49,7 +43,12 @@ function onNewNodeSuccess(data){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
     }
     else{
-        requestNode(page.name);
+        if(!!data.name){
+            requestNode(data.name);
+        }
+        else{
+            getId();
+        }
     }
 }
 
@@ -189,6 +188,8 @@ function onConnexion(data){
             $("#pseudo").html(data.pseudo);
             $("#connecte").fadeIn();
         });
+        window.pseudo = data.pseudo;
+        displayNode();
     }
     else{
         $("#errors").html("Pseudo ou mot de passe incorrect.");
@@ -207,7 +208,9 @@ function requestDeconnexion(){
 function onDeconnexion(){
     hideNavForms(function(){
         $("#pas-connecte").fadeIn();
-    })
+    });
+    window.pseudo = "";
+    displayNode();
 }
 
 ////////////////////
