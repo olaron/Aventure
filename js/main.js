@@ -1,8 +1,5 @@
 
 // TODO
-// suppression des liens
-// Bouton retour pour les liens
-//
 // griser les formulaires sur les submits
 // Corriger le double fadeIn/fadeOut
 // ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
