@@ -119,9 +119,29 @@ elseif($_POST["action"] === "link"){
             Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
         }
         else{
-            $node = Link::getLinkById($_POST["id_link"]);
-            if($_SESSION["pseudo"] === $node->getAuthor()){
+            $link = Link::getLinkById($_POST["id_link"]);
+            if($_SESSION["pseudo"] === $link->getAuthor()){
                 Link::editLink($_POST["id_link"],$_POST["destination"],$_POST["choix"]);
+            }
+            else{
+                $r["erreurAuteur"] = true;
+            }
+        }
+    }
+    else{
+        $r["erreurLogin"] = true;
+    }
+}
+
+elseif($_POST["action"] === "deletelink"){
+    if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
+        if(Link::checkLinkId($_POST["id_link"])){
+            $r["erreurLinkNotFound"] = true;
+        }
+        else{
+            $link = Link::getLinkById($_POST["id_link"]);
+            if($_SESSION["pseudo"] === $link->getAuthor()){
+                Link::deleteLink($_POST["id_link"]);
             }
             else{
                 $r["erreurAuteur"] = true;

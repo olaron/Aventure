@@ -97,7 +97,9 @@ function creerFormLien(text,destination,id,auteur){
 }
 
 function deleteLink(id){
-    // TODO
+    console.log(id);
+    ajaxRequest(onNewLink,{action: "deletelink", id_link: id});
+    return false;
 }
 
 function backFormLien(){
@@ -117,7 +119,7 @@ function onNewLink(data){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
     }
     else{
-        displayNode();
+        requestNode(page.name);
     }
 
 }

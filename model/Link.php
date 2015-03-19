@@ -62,6 +62,7 @@ class Link {
     }
 
     public static function addLink($from, $to, $action, $author){
+        $action = htmlspecialchars($action);
         if (DB::isResultNull(
                 DB::sendQuery("select * from links where from_node = '$from'
                     and to_node = '$to' and link_action = '$action' and pseudo = '$author'"))
@@ -78,4 +79,7 @@ class Link {
                             where id_link = '$id'");
     }
 
+    public static function deleteLink($id){
+        DB::sendQuery("DELETE FROM links WHERE id_link = '$id'");
+    }
 }
