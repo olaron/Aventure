@@ -1,10 +1,15 @@
 
 // TODO
+//
 // griser les formulaires sur les submits
+// faire apparaitre un gif de chargement pendant les requetes ajax
+// factoriser la gestion des erreurs
+//
+//
 // Corriger le double fadeIn/fadeOut
 // ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
 //
-// refactoring: node->page / id->pageName / action,choice->link
+// refactoring: node->page / id->pageName / action,choice->link / choix->texte
 // corriger les profils des fonctions de génération de formulaire
 // Trouver un nom de projet
 
@@ -76,8 +81,8 @@ function onSuppression(data){
 function creerFormLien(text,destination,id,auteur){
 
     var inputs = [
-        newInput("choix","text","Choix").val(text),
-        newInput("destination", "text", "ID de destination").val(destination),
+        newInput("choix","text","Texte affiché").val(text),
+        newInput("destination", "text", "Page de destination").val(destination),
         newButton("bouton-valider-choix","submit","Valider","", "ok"),
         newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
         newHiddenInput("id",page.name),
@@ -90,7 +95,7 @@ function creerFormLien(text,destination,id,auteur){
         )
     }
 
-    return newFormulaire("form-choice","link","toHide",inputs, requestNewLink);
+    return newFormulaire("form-lien","link","toHide",inputs, requestNewLink);
 }
 
 function deleteLink(id){
@@ -100,7 +105,7 @@ function deleteLink(id){
 }
 
 function backFormLien(){
-    $("#form-choice").slideUp();
+    $("#form-lien").slideUp();
 }
 
 function requestNewLink(){
@@ -115,9 +120,17 @@ function onNewLink(data){
     if(data.erreurAuteur){
         alert("Vous n'avez pas le droit d'effectuer cette action.");
     }
-    else{
-        requestNode(page.name);
+    if(data.erreurLinkID){
+        alert("La page de destination ne doit pas faire plus de 32 caractères et doit contenir seulement des caractères alphanumériques.");
     }
+    if(data.erreurLinkText){
+        alert("Le texte du lien ne doit pas faire plus de 64 caractères.");
+    }
+    if(data.erreurLinkLength){
+        alert("Tous les champs doivent être remplis.");
+    }
+
+    requestNode(page.name);
 
 }
 

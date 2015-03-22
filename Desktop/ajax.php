@@ -113,18 +113,28 @@ elseif($_POST["action"] === "edition"){
 }
 
 elseif($_POST["action"] === "link"){
-
     if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
-        if(Link::checkLinkId($_POST["id_link"])){
-            Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
+        if(strlen($_POST["destination"])<1 || strlen($_POST["choix"])<1){
+            $r["erreurLinkLength"] = true;
         }
-        else{
-            $link = Link::getLinkById($_POST["id_link"]);
-            if($_SESSION["pseudo"] === $link->getAuthor()){
-                Link::editLink($_POST["id_link"],$_POST["destination"],$_POST["choix"]);
+        if(strlen($_POST["destination"])>32 || !ctype_alnum($_POST["destination"])){
+            $r["erreurLinkID"] = true;
+        }
+        if(strlen($_POST["choix"])>64){
+            $r["erreurLinkText"] = true;
+        }
+        if( !( isset($r["erreurLinkText"]) || isset($r["erreurLinkID"]) || isset($r["erreurLinkLength"]) ) ){
+            if(Link::checkLinkId($_POST["id_link"])){
+                Link::addLink($_POST["id"],$_POST["destination"],$_POST["choix"],$_SESSION["pseudo"]);
             }
             else{
-                $r["erreurAuteur"] = true;
+                $link = Link::getLinkById($_POST["id_link"]);
+                if($_SESSION["pseudo"] === $link->getAuthor()){
+                    Link::editLink($_POST["id_link"],$_POST["destination"],$_POST["choix"]);
+                }
+                else{
+                    $r["erreurAuteur"] = true;
+                }
             }
         }
     }

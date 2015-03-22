@@ -14,11 +14,8 @@ class DB {
     }
 
     public static function getInstance (){
-        if (self::$bd == null)
-        {
+        if (self::$bd == null) {
             self::$bd = new DB();
-            if (self::$bd == null)
-                ;//echo 'Erreur de connection à la BDD';
         }
         return self::$bd->dbLink;
     }
@@ -26,13 +23,7 @@ class DB {
     public static function sendQuery($query){
         $link = DB::getInstance();
 
-        if(!($dbResult = mysqli_query($link, $query)))
-        {
-            //echo 'Erreur de requête.<br/>';
-            // Affiche le type d'erreur.
-            //echo 'Erreur : ' . mysqli_error($link) . '<br/>';
-            // Affiche la requête envoyée.
-            //echo 'Requête : ' . $query . '<br/>';
+        if(!($dbResult = mysqli_query($link, $query))) {
             exit();
         }
         return $dbResult;
