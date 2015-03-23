@@ -3,8 +3,6 @@
 //
 // griser les formulaires sur les submits
 // faire apparaitre un gif de chargement pendant les requetes ajax
-// factoriser la gestion des erreurs
-//
 //
 // Corriger le double fadeIn/fadeOut
 // ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
@@ -114,24 +112,10 @@ function requestNewLink(){
 }
 
 function onNewLink(data){
-    if(data.erreurLogin){
-        alert("Vous devez être connecté pour effectuer cette action.");
-    }
-    if(data.erreurAuteur){
-        alert("Vous n'avez pas le droit d'effectuer cette action.");
-    }
-    if(data.erreurLinkID){
-        alert("La page de destination ne doit pas faire plus de 32 caractères et doit contenir seulement des caractères alphanumériques.");
-    }
-    if(data.erreurLinkText){
-        alert("Le texte du lien ne doit pas faire plus de 64 caractères.");
-    }
-    if(data.erreurLinkLength){
-        alert("Tous les champs doivent être remplis.");
-    }
 
-    requestNode(page.name);
-
+    if(!(data.erreurLinkID || data.erreurLinkText || data.erreurLinkLength)){
+        requestNode(page.name);
+    }
 }
 
 ////////////////////
@@ -153,29 +137,13 @@ function creerFormInscription(){
 }
 
 function requestInscription(){
-    $("#errors").html();
+
     ajaxRequest(onInscription,$(this).serialize());
     return false;
 }
 
 function onInscription(data){
-    var errors = "";
-    if(data.erreurPseudoUsed){
-        errors += "Pseudo déjà utilisé. "
-    }
-    if(data.erreurAlphaNum){
-        errors += "Le pseudo doit seulement contenir des caractères alphanumériques. "
-    }
-    if(data.erreurPseudoLength){
-        errors += "Le pseudo doit contenir au moins 2 caractères. "
-    }
-    if(data.erreurPassLength){
-        errors += "Le mot de passe doit contenir au moins 6 caractères. "
-    }
-    if(data.erreurConfirmation){
-        errors += "La confirmation du mot de passe est incorrect."
-    }
-    $("#errors").html(errors);
+
     if(data.connecte){
         hideNavForms(function(){
             $("#pseudo").html(data.pseudo);
@@ -325,14 +293,8 @@ function requestNode(page){
 }
 
 function onRequestNodeSuccess(page){
-    if(page.success){
-        window.page = page;
-        displayNode();
-    }
-    else{
-        alert("Erreur lors de la requette d'acquisition.");
-    }
-
+    window.page = page;
+    displayNode();
 }
 
 ////////////////////
@@ -454,13 +416,57 @@ function getId(){
 }
 
 function ajaxRequest(successCallback,data){
+    $("#errors")
+        .slideUp()
+        .html();
     $.ajax({
         type: "POST",
         url: "ajax.php",
         data: data,
-        success: successCallback,
+        success: function(data) {
+            ajaxProblems(data);
+            successCallback(data);
+        },
         error: ajaxError
     });
+}
+
+function ajaxProblems(data){
+    if(data.erreurLogin){
+        alert("Vous devez être connecté pour effectuer cette action.");
+    }
+    if(data.erreurAuteur){
+        alert("Vous n'avez pas le droit d'effectuer cette action.");
+    }
+
+    var errors = "";
+    if(data.erreurLinkID){
+        errors += "La page de destination ne doit pas faire plus de 32 caractères et doit contenir seulement des caractères alphanumériques. ";
+    }
+    if(data.erreurLinkText){
+        errors += "Le texte du lien ne doit pas faire plus de 64 caractères. ";
+    }
+    if(data.erreurLinkLength){
+        errors += "Tous les champs doivent être remplis. ";
+    }
+    if(data.erreurPseudoUsed){
+        errors += "Pseudo déjà utilisé. "
+    }
+    if(data.erreurAlphaNum){
+        errors += "Le pseudo doit seulement contenir des caractères alphanumériques. "
+    }
+    if(data.erreurPseudoLength){
+        errors += "Le pseudo doit contenir au moins 2 caractères. "
+    }
+    if(data.erreurPassLength){
+        errors += "Le mot de passe doit contenir au moins 6 caractères. "
+    }
+    if(data.erreurConfirmation){
+        errors += "La confirmation du mot de passe est incorrect."
+    }
+    $("#errors")
+        .html(errors)
+        .slideDown();
 }
 
 function ajaxError(resultat, statut, erreur){

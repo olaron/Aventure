@@ -13,6 +13,7 @@ body{
 #main{
     padding: 20px;
     font-size: 200%;
+    margin-top: 1em;
 }
 
 .toHide{
