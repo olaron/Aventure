@@ -1,8 +1,8 @@
 
 // TODO
 //
-// griser les formulaires sur les submits
 // faire apparaitre un gif de chargement pendant les requetes ajax
+// afficher l'auteur des liens et colorrer en fonction
 //
 // Corriger le double fadeIn/fadeOut
 // ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
@@ -11,6 +11,20 @@
 // corriger les profils des fonctions de génération de formulaire
 // Trouver un nom de projet
 
+/*
+var data = $(this).serialize();
+$(this).find(":input").prop("disabled", true);
+$(this).slideUp(function(){
+    $(this).find(":input").removeAttr("disabled");
+});
+$.ajax({
+    type: $(this).attr("method"),
+    url: $(this).attr("action"),
+    data: data,
+    success: OnSuccess
+});
+*/
+
 ////////// Edition //////////
 
 function creerFormEdition(content){
@@ -18,24 +32,24 @@ function creerFormEdition(content){
         [
             newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
-            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayNode),
+            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayPage),
             newHiddenInput("id",page.name)
         ],
-        requestNewNode
+        requestNewPage
     );
 }
 
-function requestNewNode(){
+function requestNewPage(){
     var data = $(this).serialize().replace(/\'/g,'\\\'');
     $(this).find(":input").prop("disabled", true);
     hideAll(function(){
         $(this).find(":input").removeAttr("disabled");
     });
-    ajaxRequest(onNewNodeSuccess,data);
+    ajaxRequest(onNewPageSuccess,data);
     return false;
 }
 
-function onNewNodeSuccess(data){
+function onNewPageSuccess(data){
     if(data.erreurLogin){
         alert("Vous devez être connecté pour effectuer cette action.");
     }
@@ -44,7 +58,7 @@ function onNewNodeSuccess(data){
     }
     else{
         if(!!data.name){
-            requestNode(data.name);
+            requestPage(data.name);
         }
         else{
             getId();
@@ -68,7 +82,7 @@ function requestSuppression(){
 }
 
 function onSuppression(data){
-    displayNode();
+    displayPage();
 }
 
 ////////////////////
@@ -107,14 +121,21 @@ function backFormLien(){
 }
 
 function requestNewLink(){
-    ajaxRequest(onNewLink,$(this).serialize().replace(/\'/g,'\\\''));
+    var data = $(this).serialize().replace(/\'/g,'\\\'');
+    $(this).find(":input").prop("disabled", true);
+    $(this).slideUp(function(){
+        $(this).find(":input").removeAttr("disabled");
+    });
+    ajaxRequest(onNewLink,data);
     return false;
 }
 
 function onNewLink(data){
-
     if(!(data.erreurLinkID || data.erreurLinkText || data.erreurLinkLength)){
-        requestNode(page.name);
+        requestPage(page.name);
+    }
+    else{
+        $("#form-lien").slideDown();
     }
 }
 
@@ -149,7 +170,7 @@ function onInscription(data){
             $("#pseudo").html(data.pseudo);
             $("#connecte").fadeIn();
         });
-        displayNode();
+        displayPage();
     }
 }
 
@@ -188,7 +209,7 @@ function onConnexion(data){
             $("#connecte").fadeIn();
         });
         window.pseudo = data.pseudo;
-        displayNode();
+        displayPage();
     }
     else{
         $("#errors").html("Pseudo ou mot de passe incorrect.");
@@ -209,7 +230,7 @@ function onDeconnexion(){
         $("#pas-connecte").fadeIn();
     });
     window.pseudo = "";
-    displayNode();
+    displayPage();
 }
 
 ////////////////////
@@ -267,7 +288,7 @@ $(window).on('popstate', function() {
 
 function prependIn(id,form){
     $(id).prepend(form);
-    form.fadeIn();
+    form.slideDown();
 }
 
 // Requêtes de démarrage //
@@ -281,20 +302,21 @@ function onSessionSuccess(data){
         window.pseudo = data.pseudo;
         $("#pseudo").html(data.pseudo);
         $("#connecte").fadeIn();
-        displayNode();
+        displayPage();
     }
     else{
         $("#pas-connecte").fadeIn();
     }
 }
 
-function requestNode(page){
-    ajaxRequest(onRequestNodeSuccess,{action:"getpage",id: page});
+function requestPage(page){
+    $(".btn-lien").prop("disabled", true);
+    ajaxRequest(onRequestPageSuccess,{action:"getpage",id: page});
 }
 
-function onRequestNodeSuccess(page){
+function onRequestPageSuccess(page){
     window.page = page;
-    displayNode();
+    displayPage();
 }
 
 ////////////////////
@@ -302,7 +324,7 @@ function onRequestNodeSuccess(page){
 
 // Affichage //
 
-function displayNode(){
+function displayPage(){
     hideAll(function(){
         if(page.erreurNotFound){
             $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
@@ -348,13 +370,13 @@ function displayNode(){
 function newLink(link){
 
     var bouton = [
-        newButton("","button",link.text)
+        newButton("","button",link.text,"btn-lien btn-default")
             .click(link.destination,function(e){goToPage(e.data)})
     ];
 
     if(link.author == pseudo){
         bouton.push(
-            newButton("","button","","","pencil",function(){
+            newButton("","button","","btn-lien btn-default","pencil",function(){
                 prependIn("#choices",creerFormLien(link.text,link.destination,link.id,link.author));
             })
         )
@@ -366,7 +388,7 @@ function newLink(link){
 function goToPage(page){
     var url = location.href.split("?")[0];
     history.pushState(null,null,url+"?id="+page);
-    requestNode(page);
+    requestPage(page);
 }
 
 
@@ -412,7 +434,7 @@ function getId(){
         id = "start";
         history.replaceState(null,null,location.href+"?id="+id);
     }
-    requestNode(id);
+    requestPage(id);
 }
 
 function ajaxRequest(successCallback,data){
