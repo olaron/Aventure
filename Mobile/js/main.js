@@ -1,18 +1,7 @@
 ////////// Edition //////////
 
-function creerFormEdition(content){
-    return newFormulaire("form-ecrire","edition","toHide",
-        [
-            newTextarea("content","Écrivez ici",content),
-            newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
-            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayPage),
-            newHiddenInput("id",page.name)
-        ],
-        requestNewPage
-    );
-}
-
-function requestNewPage(){
+function requestNewPage()
+{
     var data = $(this).serialize().replace(/\'/g,'\\\'');
     $(this).find(":input").prop("disabled", true);
     hideAll(function(){
@@ -22,7 +11,8 @@ function requestNewPage(){
     return false;
 }
 
-function onNewPageSuccess(data){
+function onNewPageSuccess(data)
+{
     if(data.erreurLogin){
         alert("Vous devez être connecté pour effectuer cette action.");
     }
@@ -39,7 +29,8 @@ function onNewPageSuccess(data){
     }
 }
 
-function creerFormSupression(){
+function creerFormSupression()
+{
     return newFormulaire("form-suppression","pageSuppression","toHide",
         [
             newHiddenInput("id",page.name),
@@ -49,12 +40,14 @@ function creerFormSupression(){
     )
 }
 
-function requestSuppression(){
+function requestSuppression()
+{
     ajaxRequest(onSuppression,$(this).serialize());
     return false;
 }
 
-function onSuppression(data){
+function onSuppression(data)
+{
     displayPage();
 }
 
@@ -63,8 +56,17 @@ function onSuppression(data){
 
 ////////// Lien //////////
 
-function creerFormLien(text,destination,id,auteur){
+function displayFormLien(text,destination,id)
+{
+    $.mobile.changePage("#lien");
+    $("#form-lien-choix").val(text);
+    $("#form-lien-destination").val(destination);
+    $("#form-lien-id").val(id);
+    $("#form-lien-page").val(page.name);
+}
 
+function creerFormLien(text,destination,id,auteur)
+{
     var inputs = [
         newInput("choix","text","Texte affiché").val(text),
         newInput("destination", "text", "Page de destination").val(destination),
@@ -83,17 +85,20 @@ function creerFormLien(text,destination,id,auteur){
     return newFormulaire("form-lien","link","toHide",inputs, requestNewLink);
 }
 
-function deleteLink(id){
+function deleteLink(id)
+{
     console.log(id);
     ajaxRequest(onNewLink,{action: "deletelink", id_link: id});
     return false;
 }
 
-function backFormLien(){
+function backFormLien()
+{
     $("#form-lien").slideUp();
 }
 
-function requestNewLink(){
+function requestNewLink()
+{
     var data = $(this).serialize().replace(/\'/g,'\\\'');
     $(this).find(":input").prop("disabled", true);
     $(this).slideUp(function(){
@@ -103,7 +108,8 @@ function requestNewLink(){
     return false;
 }
 
-function onNewLink(data){
+function onNewLink(data)
+{
     if(!(data.erreurLinkID || data.erreurLinkText || data.erreurLinkLength)){
         requestPage(page.name);
     }
@@ -117,27 +123,8 @@ function onNewLink(data){
 
 ////////// Inscription //////////
 
-function creerFormInscription(){
-    return newFormulaire("form-inscription","inscription","navbar-form navbar-right navbar-hide",
-        [
-            newInput("pseudo","text","Pseudo"),
-            newInput("password","password","Mot de passe"),
-            newInput("confirmation","password","Confirmation"),
-            newButton("","submit","S'inscrire","btn-success","plus"),
-            newButton("","button","Retour","btn-danger","remove",retourNavbar)
-        ],
-        requestInscription
-    )
-}
-
-function requestInscription(){
-
-    ajaxRequest(onInscription,$(this).serialize());
-    return false;
-}
-
-function onInscription(data){
-
+function onInscription(data)
+{
     if(data.connecte){
         hideNavForms(function(){
             $("#pseudo").html(data.pseudo);
@@ -152,40 +139,21 @@ function onInscription(data){
 
 ////////// Connexion //////////
 
-function creerFormConnexion(){
-    return newFormulaire("form-connexion","connexion","navbar-form navbar-right navbar-hide",
-        [
-            newInput("pseudo","text","Pseudo"),
-            newInput("password","password","Mot de passe"),
-            newButton("","submit","Se connecter","btn-success","off"),
-            newButton("","button","Retour","btn-danger","remove",retourNavbar)
-        ],
-        requestConnexion
-    );
-}
-
-function retourNavbar(){
-    hideNavForms(function(){
-        $("#pas-connecte").fadeIn();
-    });
-}
-
-function requestConnexion(){
+function requestConnexion()
+{
     ajaxRequest(onConnexion,$(this).serialize());
     return false;
 }
 
-function onConnexion(data){
+function onConnexion(data)
+{
     if(data.connecte){
-        hideNavForms(function(){
-            $("#pseudo").html(data.pseudo);
-            $("#connecte").fadeIn();
-        });
+        $("#pseudo").html(data.pseudo);
         window.pseudo = data.pseudo;
         displayPage();
     }
     else{
-        $("#errors").html("Pseudo ou mot de passe incorrect.");
+        alert("Pseudo ou mot de passe incorrect.");
     }
 }
 
@@ -194,11 +162,13 @@ function onConnexion(data){
 
 ////////// Deconnexion //////////
 
-function requestDeconnexion(){
+function requestDeconnexion()
+{
     ajaxRequest(onDeconnexion,{action: "deconnexion"});
 }
 
-function onDeconnexion(){
+function onDeconnexion()
+{
     hideNavForms(function(){
         $("#pas-connecte").fadeIn();
     });
@@ -211,7 +181,8 @@ function onDeconnexion(){
 
 //// Document ready ////
 
-$(document).ready(function(){
+$(document).ready(function()
+{
     $.mobile.defaultPageTransition = 'slide';
     window.pseudo = "";
     window.page = {};
@@ -221,42 +192,32 @@ $(document).ready(function(){
 
     requestSession();
 
-    $("#btn-inscription").click(function(){
-        hideNavForms(function(){
-            prependIn("#navbar",creerFormInscription());
-        })
-    });
-
-    $("#btn-connexion").click(function(){
-        hideNavForms(function(){
-            prependIn("#navbar",creerFormConnexion());
-        })
-    });
-
-    $("#btn-deconnexion").click(function(){
+    $("#btn-deconnexion").click(function()
+    {
         requestDeconnexion();
     });
 
-    $(".btn-retour").click(function(){
-        retourNavbar();
-    });
 
-    $("#bouton-ecrire,#bouton-modifier").click(function(){
-        hideAll(function(){
-            prependIn("#main",creerFormEdition(page.content));
-        })
-    });
-
-    $("#bouton-ajouter-choix").click(function(){
-        prependIn("#choices",creerFormLien());
-    });
-
+    $("#form-connexion").submit(requestConnexion);
 });
 
 
+/*
 $(window).on('popstate', function() {
     getId();
+    console.log("e");
 });
+*/
+
+
+$( window ).on( "navigate", function( event, data )
+{
+    event.preventDefault();
+    console.log( data );
+    console.log( event );
+    getId();
+});
+
 
 /////////////////////
 
@@ -267,28 +228,32 @@ function prependIn(id,form){
 
 // Requêtes de démarrage //
 
-function requestSession(){
+function requestSession()
+{
     ajaxRequest(onSessionSuccess,{action: "session"});
 }
 
-function onSessionSuccess(data){
+function onSessionSuccess(data)
+{
     if(data.connecte){
         window.pseudo = data.pseudo;
         $("#pseudo").html(data.pseudo);
-        $("#connecte").fadeIn();
+        //$("#connecte").fadeIn();
         displayPage();
     }
     else{
-        $("#pas-connecte").fadeIn();
+        //$("#pas-connecte").fadeIn();
     }
 }
 
-function requestPage(page){
+function requestPage(page)
+{
     $(".btn-lien").prop("disabled", true);
     ajaxRequest(onRequestPageSuccess,{action:"getpage",id: page});
 }
 
-function onRequestPageSuccess(page){
+function onRequestPageSuccess(page)
+{
     window.page = page;
     displayPage();
 }
@@ -298,75 +263,101 @@ function onRequestPageSuccess(page){
 
 // Affichage //
 
-function displayPage(){
-    hideAll(function(){
-        if(page.erreurNotFound){
-            $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
-            if(!!pseudo){
-                $("#bouton-ecrire").fadeIn();
-            }
-        }
-        else{
-            $("#content").html(page.content.replace(/\n/g, "<br>"));
-            $("#pageName")
-                .fadeIn()
-                .html("Page: "+page.name);
-            $("#author")
-                .fadeIn()
-                .html("Auteur: "+page.author);
-        }
-
-        if(page.author === pseudo){
-            $("#bouton-modifier").fadeIn();
-            prependIn("#options",creerFormSupression());
-        }
-
-        $("#content").fadeIn();
-
+function displayPage()
+{
+    $.mobile.changePage("#main");
+    if(page.erreurNotFound){
+        $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
         if(!!pseudo){
-            $("#bouton-ajouter-choix").fadeIn();
+            $("#bouton-ecrire").fadeIn();
         }
-
-        $("#choices")
+    }
+    else{
+        $("#content").html(page.content.replace(/\n/g, "<br>"));
+        $("#pageName")
             .fadeIn()
-            .html("");
-        for(var i in page.links){
-            var link = page.links[i];
-            $("#choices")
-                .append(
-                    newLink(link)
-                );
-        }
+            .html("Page: "+page.name);
+        $("#author")
+            .fadeIn()
+            .html("Auteur: "+page.author);
+    }
 
-    });
+    if(page.author === pseudo){
+        $("#bouton-modifier").fadeIn();
+        prependIn("#options",creerFormSupression());
+    }
+
+    $("#content").fadeIn();
+
+    if(!!pseudo){
+        $("#bouton-ajouter-choix").fadeIn();
+    }
+
+    $("#links")
+        .fadeIn()
+        .html("");
+    for(var i in page.links){
+        var link = page.links[i];
+        $("#links")
+            .append(
+                newLink(link)
+            );
+    }
 }
 
-function newLink(link){
+function newLink(link)
+{
 
     var bouton = [
-        newButton("","button",link.text,"btn-lien btn-default")
-            .click(link.destination,function(e){goToPage(e.data)})
+        $('<button>')
+            .attr("href","#")
+            .attr("class","ui-btn ui-corner-all ui-first-child")
+            .text(link.text)
+            .click(link.destination, function(e)
+                {
+                    goToPage(e.data);
+                }
+            )
     ];
 
     if(link.author == pseudo){
         bouton.push(
-            newButton("","button","","btn-lien btn-default","pencil",function(){
-                prependIn("#choices",creerFormLien(link.text,link.destination,link.id,link.author));
-            })
+            $('<button>')
+                .attr("href","#")
+                .attr("class","ui-btn ui-corner-all ui-icon-edit ui-shadow ui-last-child ui-btn-icon-notext")
+                .attr("data-iconpos","notext")
+                .text("\"Modifier\"")
+                .click(function()
+                    {
+                        displayFormLien(link.text,link.destination,link.id,link.author);
+                    }
+                )
         )
     }
 
-    return newButtonGroup(bouton)
+    var groupe = $("<div>")
+        .attr("data-role","controlgroup")
+        .attr("data-type","horizontal")
+        .attr("class","ui-controlgroup ui-controlgroup-horizontal ui-corner-all ")
+        .append(
+            $("<div>")
+            .attr("class","ui-controlgroup-controls")
+            .append(bouton)
+        );
+
+    return newButtonGroup(groupe)
 }
 
-function goToPage(page){
+function goToPage(page)
+{
     var url = location.href.split("?")[0];
     history.pushState(null,null,url+"?id="+page);
     requestPage(page);
 }
 
 
-function hideNavForms(callback){
+function hideNavForms(callback)
+{
     $(".navbar-hide")
         .fadeOut()
         .promise()
@@ -379,7 +370,8 @@ function hideNavForms(callback){
     })
 }
 
-function hideAll(callback){
+function hideAll(callback)
+{
     $(".toHide")
         .fadeOut()
         .promise()
@@ -391,7 +383,8 @@ function hideAll(callback){
 
 // Fonctions utilitaires //
 
-function getURLVariable(variable){
+function getURLVariable(variable)
+{
     var vars = location.search.substring(1).split("&");
     for (var i=0; i<vars.length; i++){
         var pair = vars[i].split("=");
@@ -402,7 +395,8 @@ function getURLVariable(variable){
     return false;
 }
 
-function getId(){
+function getId()
+{
     var id = getURLVariable("id");
     if (!id) {
         id = "start";
@@ -411,7 +405,8 @@ function getId(){
     requestPage(id);
 }
 
-function ajaxRequest(successCallback,data){
+function ajaxRequest(successCallback,data)
+{
     $("#errors")
         .slideUp()
         .html();
@@ -419,7 +414,8 @@ function ajaxRequest(successCallback,data){
         type: "POST",
         url: "ajax.php",
         data: data,
-        success: function(data) {
+        success: function(data)
+        {
             ajaxProblems(data);
             successCallback(data);
         },
@@ -427,15 +423,15 @@ function ajaxRequest(successCallback,data){
     });
 }
 
-function ajaxProblems(data){
+function ajaxProblems(data)
+{
+    var errors = "";
     if(data.erreurLogin){
-        alert("Vous devez être connecté pour effectuer cette action.");
+        errors += "Vous devez être connecté pour effectuer cette action." ;
     }
     if(data.erreurAuteur){
-        alert("Vous n'avez pas le droit d'effectuer cette action.");
+        errors += "Vous n'avez pas le droit d'effectuer cette action. ";
     }
-
-    var errors = "";
     if(data.erreurLinkID){
         errors += "La page de destination ne doit pas faire plus de 32 caractères et doit contenir seulement des caractères alphanumériques. ";
     }
@@ -460,12 +456,12 @@ function ajaxProblems(data){
     if(data.erreurConfirmation){
         errors += "La confirmation du mot de passe est incorrect."
     }
-    $("#errors")
-        .html(errors)
-        .slideDown();
+    if(!!errors)
+        alert(errors);
 }
 
-function ajaxError(resultat, statut, erreur){
+function ajaxError(resultat, statut, erreur)
+{
     alert("Une erreur AJAX est survenue.");
     console.log(resultat);
     console.log(statut);
@@ -478,7 +474,8 @@ function ajaxError(resultat, statut, erreur){
 
 // Générateurs de formulaires //
 
-function newButton(id, type, text,classe, icon, clickCallback){
+function newButton(id, type, text,classe, icon, clickCallback)
+{
     if(!!icon){
         var glyph = $("<span>")
             .attr("class", "glyphicon glyphicon-"+icon)
@@ -493,14 +490,15 @@ function newButton(id, type, text,classe, icon, clickCallback){
     }
 
     return $('<button>')
-        .attr("class", "btn "+classe)
+        .attr("class", "ui-btn "+classe)
         .attr("type", type)
         .attr("id", id)
         .click(clickCallback)
         .append(glyph , " "+text);
 }
 
-function newInput(name, type, placeholder){
+function newInput(name, type, placeholder)
+{
     return $("<input>")
         .attr("class", "form-control")
         .attr("type", type)
@@ -508,34 +506,23 @@ function newInput(name, type, placeholder){
         .attr("placeholder", placeholder);
 }
 
-function newTextarea(name, placeholder, value){
-    return $("<textarea>")
-        .attr("class", "form-control")
-        .attr("name", name)
-        .attr("placeholder", placeholder)
-        .val(value);
-}
-
-function newHiddenInput(name,value){
+function newHiddenInput(name,value)
+{
     return $("<input>")
         .attr("type","hidden")
         .attr("name",name)
         .attr("value",value);
 }
 
-function newInputGroup(inputs){
-    return $("<div>")
-        .attr("class","input-group")
-        .append(inputs);
-}
-
-function newButtonGroup(buttons){
+function newButtonGroup(buttons)
+{
     return $("<span>")
         .attr("class","btn-group")
         .append(buttons);
 }
 
-function newFormulaire(id,action,classe ,inputs,submitCallback){
+function newFormulaire(id,action,classe ,inputs,submitCallback)
+{
     $("#"+id).remove();
     return $("<form>")
         .attr("id",id)

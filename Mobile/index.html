@@ -2,8 +2,10 @@
 <html>
 <head>
 	<title>Aventure</title>
+	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<link rel="stylesheet" href="style_mobile.css" />
 	<script src="js/jquery.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 	<script src="js/main.js"></script>
@@ -21,8 +23,13 @@
 	</div>
 
 	<div role="main" class="ui-content">
+		<div id="infos">
+			<p>Connecté en tant que <span id="pseudo"></span></p>
+			<p><span id="author"></span></p>
+			<p><span id="pageName"></span></p>
+		</div>
 		<div id="content"></div>
-
+		<div id="links"></div>
 	</div>
 
 </div>
@@ -53,6 +60,7 @@
 
 	<div role="main" class="ui-content">
 		<form id="form-connexion" method="POST" action="ajax.php">
+			<input type="hidden" name="action" value="connexion">
 			<input type="text" name="pseudo" placeholder="Pseudo">
 			<input type="password" name="password" placeholder="Mot de passe">
 			<input type="submit" value="Se connecter" data-direction="reverse">
@@ -106,13 +114,15 @@
 
 	<div data-role="header">
 		<h1>Lien</h1>
-		<a href="#option" class="ui-btn ui-icon-back ui-btn-icon-notext" data-direction="reverse"></a>
+		<a href="#main" class="ui-btn ui-icon-back ui-btn-icon-notext" data-direction="reverse"></a>
 	</div>
 
 	<div role="main" class="ui-content">
 		<form id="form-lien" method="POST" action="ajax.php">
-			<input type="text" name="text" placeholder="Texte">
-			<input type="text" name="text" placeholder="Page de destination">
+			<input id="form-lien-page" type="hidden" name="id">
+			<input id="form-lien-id" type="hidden" name="id_link">
+			<input id="form-lien-choix" type="text" name="choix" placeholder="Texte">
+			<input id="form-lien-destination" type="text" name="destination" placeholder="Page de destination">
 			<input type="submit" value="Valider" data-direction="reverse">
 		</form>
 	</div>
