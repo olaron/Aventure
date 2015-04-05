@@ -107,7 +107,7 @@ function requestNewLink()
 {
     var data = $(this).serialize().replace(/\'/g,'\\\'');
     $(this).find(":input").prop("disabled", true);
-    $(this).slideUp(function(){
+    $(this).fadeOut(function(){
         $(this).find(":input").removeAttr("disabled");
     });
     ajaxRequest(onNewLink,data);
@@ -119,9 +119,7 @@ function onNewLink(data)
     if(!(data.erreurLinkID || data.erreurLinkText || data.erreurLinkLength)){
         requestPage(page.name);
     }
-    else{
-        $("#form-lien").slideDown();
-    }
+    $("#form-lien").fadeIn();
 }
 
 ////////////////////
@@ -164,10 +162,6 @@ function onConnexion(data)
 function displayConnecte(pseudo)
 {
     window.pseudo = pseudo;
-    $("#pseudo").html("Connecté en tant que " + pseudo);
-    $("#btn-connection")
-        .attr("href","#")
-        .click(requestDeconnexion);
     displayPage();
 }
 
@@ -210,16 +204,8 @@ $(document).ready(function()
     $("#btn-deconnexion").click(requestDeconnexion);
     $("#form-connexion").submit(requestConnexion);
     $("#form-edition").submit(requestNewPage);
+    $("#form-lien").submit(requestNewLink);
 });
-
-
-/*
-$(window).on('popstate', function() {
-    getId();
-    console.log("e");
-});
-*/
-
 
 $( window ).on( "navigate", function( event, data )
 {
@@ -248,9 +234,6 @@ function onSessionSuccess(data)
 {
     if(data.connecte){
         displayConnecte(data.pseudo);
-    }
-    else{
-        //$("#pas-connecte").fadeIn();
     }
 }
 
@@ -299,6 +282,16 @@ function displayPage()
 
     if(!!pseudo){
         $("#btn-options").fadeIn();
+        $("#pseudo").html("Connecté en tant que " + pseudo);
+        $("#btn-connection")
+            .attr("href","#")
+            .on("click",requestDeconnexion);
+    }
+    else{
+        $("#pseudo").empty();
+        $("#btn-connection")
+            .attr("href","#connection")
+            .off("click");
     }
 
     $("#links").empty();
