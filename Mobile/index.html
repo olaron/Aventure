@@ -18,13 +18,13 @@
 
 	<div data-role="header">
 		<h1>Aventure</h1>
-		<a href="#connection" class="ui-btn ui-icon-power ui-btn-icon-notext"></a>
-		<a href="#option" class="ui-btn ui-icon-bullets ui-btn-icon-notext"></a>
+		<a id="btn-connection" href="#connection" class="ui-btn ui-icon-power ui-btn-icon-notext"></a>
+		<a id="btn-options" href="#option" class="ui-btn ui-icon-bullets ui-btn-icon-notext"></a>
 	</div>
 
 	<div role="main" class="ui-content">
 		<div id="infos">
-			<p>Connecté en tant que <span id="pseudo"></span></p>
+			<p><span id="pseudo"></span></p>
 			<p><span id="author"></span></p>
 			<p><span id="pageName"></span></p>
 		</div>
@@ -43,7 +43,7 @@
 	</div>
 
 	<div role="main" class="ui-content">
-		<p><a href="#edition" class="ui-btn">Modifier</a></p>
+		<p><a id="bouton-ecrire" href="#edition" class="ui-btn">Modifier</a></p>
 		<p><a href="#" class="ui-btn">Supprimer</a></p>
 		<p><a href="#lien" class="ui-btn">Ajouter un lien</a></p>
 	</div>
@@ -101,8 +101,10 @@
 
 	<div role="main" class="ui-content">
 		<form id="form-edition" method="POST" action="ajax.php">
-			<textarea cols="40" rows="8" name="textarea" id="textarea"></textarea>
+			<textarea id="textarea" cols="40" rows="8" name="content"></textarea>
 			<input type="submit" value="Valider">
+			<input type="hidden" name="action" value="edition">
+			<input type="hidden" name="id" class="hidden-pageid">
 		</form>
 
 	</div>

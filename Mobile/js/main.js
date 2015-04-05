@@ -3,10 +3,12 @@
 function requestNewPage()
 {
     var data = $(this).serialize().replace(/\'/g,'\\\'');
-    $(this).find(":input").prop("disabled", true);
-    hideAll(function(){
-        $(this).find(":input").removeAttr("disabled");
-    });
+    $(this)
+        .find(":input")
+        .prop("disabled", true)
+        .fadeOut(function(){
+            $("#form-edition").find(":input").removeAttr("disabled");
+        });
     ajaxRequest(onNewPageSuccess,data);
     return false;
 }
@@ -27,6 +29,10 @@ function onNewPageSuccess(data)
             getId();
         }
     }
+
+    $("#form-edition")
+        .find(":input")
+        .fadeIn();
 }
 
 function creerFormSupression()
@@ -148,13 +154,21 @@ function requestConnexion()
 function onConnexion(data)
 {
     if(data.connecte){
-        $("#pseudo").html(data.pseudo);
-        window.pseudo = data.pseudo;
-        displayPage();
+        displayConnecte(data.pseudo);
     }
     else{
         alert("Pseudo ou mot de passe incorrect.");
     }
+}
+
+function displayConnecte(pseudo)
+{
+    window.pseudo = pseudo;
+    $("#pseudo").html("Connecté en tant que " + pseudo);
+    $("#btn-connection")
+        .attr("href","#")
+        .click(requestDeconnexion);
+    displayPage();
 }
 
 /////////////////////
@@ -184,6 +198,7 @@ function onDeconnexion()
 $(document).ready(function()
 {
     $.mobile.defaultPageTransition = 'slide';
+    $.mobile.hashListeningEnabled = false;
     window.pseudo = "";
     window.page = {};
     $(".toHide").hide();
@@ -192,13 +207,9 @@ $(document).ready(function()
 
     requestSession();
 
-    $("#btn-deconnexion").click(function()
-    {
-        requestDeconnexion();
-    });
-
-
+    $("#btn-deconnexion").click(requestDeconnexion);
     $("#form-connexion").submit(requestConnexion);
+    $("#form-edition").submit(requestNewPage);
 });
 
 
@@ -236,10 +247,7 @@ function requestSession()
 function onSessionSuccess(data)
 {
     if(data.connecte){
-        window.pseudo = data.pseudo;
-        $("#pseudo").html(data.pseudo);
-        //$("#connecte").fadeIn();
-        displayPage();
+        displayConnecte(data.pseudo);
     }
     else{
         //$("#pas-connecte").fadeIn();
@@ -274,6 +282,7 @@ function displayPage()
     }
     else{
         $("#content").html(page.content.replace(/\n/g, "<br>"));
+        $("#textarea").val(page.content);
         $("#pageName")
             .fadeIn()
             .html("Page: "+page.name);
@@ -282,20 +291,18 @@ function displayPage()
             .html("Auteur: "+page.author);
     }
 
-    if(page.author === pseudo){
-        $("#bouton-modifier").fadeIn();
-        prependIn("#options",creerFormSupression());
-    }
+    $(".hidden-pageid").val(page.name);
 
-    $("#content").fadeIn();
+    if(page.author === pseudo){
+        $("#bouton-ecrire").fadeIn();
+    }
 
     if(!!pseudo){
-        $("#bouton-ajouter-choix").fadeIn();
+        $("#btn-options").fadeIn();
     }
 
-    $("#links")
-        .fadeIn()
-        .html("");
+    $("#links").empty();
+
     for(var i in page.links){
         var link = page.links[i];
         $("#links")
@@ -307,10 +314,8 @@ function displayPage()
 
 function newLink(link)
 {
-
     var bouton = [
         $('<button>')
-            .attr("href","#")
             .attr("class","ui-btn ui-corner-all ui-first-child")
             .text(link.text)
             .click(link.destination, function(e)
@@ -320,10 +325,9 @@ function newLink(link)
             )
     ];
 
-    if(link.author == pseudo){
+    if(link.author == window.pseudo){
         bouton.push(
             $('<button>')
-                .attr("href","#")
                 .attr("class","ui-btn ui-corner-all ui-icon-edit ui-shadow ui-last-child ui-btn-icon-notext")
                 .attr("data-iconpos","notext")
                 .text("\"Modifier\"")
@@ -399,8 +403,14 @@ function getId()
 {
     var id = getURLVariable("id");
     if (!id) {
-        id = "start";
-        history.replaceState(null,null,location.href+"?id="+id);
+        if(!!page.name){
+            id = page.name;
+        }
+        else{
+            id = "start";
+            history.replaceState(null,null,location.href+"?id="+id);
+        }
+
     }
     requestPage(id);
 }

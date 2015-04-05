@@ -4,3 +4,8 @@
     line-height: 0.2;
     font-size: 75%;
 }
+
+#btn-options
+{
+    display: none;
+}
