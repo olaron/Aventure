@@ -5,7 +5,7 @@ function creerFormEdition(content){
         [
             newTextarea("content","Écrivez ici",content),
             newButton("bouton-valider-ecrire","submit","Valider","btn-success","ok"),
-            newButton("bouton-annuler","button","Annuler","btn-danger", "remove",displayPage),
+            newButton("bouton-annuler","button","Annuler","", "remove",displayPage),
             newHiddenInput("id",page.name)
         ],
         requestNewPage
@@ -55,7 +55,7 @@ function requestSuppression(){
 }
 
 function onSuppression(data){
-    displayPage();
+    requestPage(page.name);
 }
 
 ////////////////////
@@ -68,7 +68,7 @@ function creerFormLien(text,destination,id,auteur){
     var inputs = [
         newInput("choix","text","Texte affiché").val(text),
         newInput("destination", "text", "Page de destination").val(destination),
-        newButton("bouton-valider-choix","submit","Valider","", "ok"),
+        newButton("bouton-valider-choix","submit","Valider","btn-success", "ok"),
         newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
         newHiddenInput("id",page.name),
         newHiddenInput("id_link",id)
@@ -258,10 +258,7 @@ $(window).on('popstate', function() {
 
 /////////////////////
 
-function prependIn(id,form){
-    $(id).prepend(form);
-    form.slideDown();
-}
+
 
 // Requêtes de démarrage //
 
@@ -526,6 +523,11 @@ function newFormulaire(id,action,classe ,inputs,submitCallback){
         .attr("class",classe)
         .submit(submitCallback)
         .append(inputs,newHiddenInput("action",action));
+}
+
+function prependIn(id,form){
+    $(id).prepend(form);
+    form.fadeIn();
 }
 
 ////////////////////
