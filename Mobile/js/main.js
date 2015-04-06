@@ -35,26 +35,15 @@ function onNewPageSuccess(data)
         .fadeIn();
 }
 
-function creerFormSupression()
+function requestSuppression(pageName)
 {
-    return newFormulaire("form-suppression","pageSuppression","toHide",
-        [
-            newHiddenInput("id",page.name),
-            newButton("","submit","Supprimer","btn-danger","remove")
-        ],
-        requestSuppression
-    )
-}
-
-function requestSuppression()
-{
-    ajaxRequest(onSuppression,$(this).serialize());
+    ajaxRequest(onSuppression,{action: "pageSuppression", id: pageName});
     return false;
 }
 
 function onSuppression(data)
 {
-    displayPage();
+    requestPage(page.name);
 }
 
 ////////////////////
@@ -71,36 +60,10 @@ function displayFormLien(text,destination,id)
     $("#form-lien-page").val(page.name);
 }
 
-function creerFormLien(text,destination,id,auteur)
-{
-    var inputs = [
-        newInput("choix","text","Texte affiché").val(text),
-        newInput("destination", "text", "Page de destination").val(destination),
-        newButton("bouton-valider-choix","submit","Valider","", "ok"),
-        newButton("bouton-annuler-choix","button","Annuler","","remove",backFormLien),
-        newHiddenInput("id",page.name),
-        newHiddenInput("id_link",id)
-    ];
-
-    if(auteur == pseudo){
-        inputs.push(newButton("","button","Supprimer","btn-danger","remove")
-                    .click(id,function(e){deleteLink(e.data)})
-        )
-    }
-
-    return newFormulaire("form-lien","link","toHide",inputs, requestNewLink);
-}
-
 function deleteLink(id)
 {
-    console.log(id);
     ajaxRequest(onNewLink,{action: "deletelink", id_link: id});
     return false;
-}
-
-function backFormLien()
-{
-    $("#form-lien").slideUp();
 }
 
 function requestNewLink()
@@ -127,13 +90,16 @@ function onNewLink(data)
 
 ////////// Inscription //////////
 
+function requestInscription()
+{
+    ajaxRequest(onInscription,$(this).serialize());
+    return false;
+}
+
 function onInscription(data)
 {
     if(data.connecte){
-        hideNavForms(function(){
-            $("#pseudo").html(data.pseudo);
-            $("#connecte").fadeIn();
-        });
+        displayConnecte(data.pseudo);
         displayPage();
     }
 }
@@ -177,9 +143,6 @@ function requestDeconnexion()
 
 function onDeconnexion()
 {
-    hideNavForms(function(){
-        $("#pas-connecte").fadeIn();
-    });
     window.pseudo = "";
     displayPage();
 }
@@ -195,7 +158,7 @@ $(document).ready(function()
     $.mobile.hashListeningEnabled = false;
     window.pseudo = "";
     window.page = {};
-    $(".toHide").hide();
+    $("#bouton-ecrire, #bouton-supprimer, #btn-options").hide();
 
     getId();
 
@@ -205,23 +168,23 @@ $(document).ready(function()
     $("#form-connexion").submit(requestConnexion);
     $("#form-edition").submit(requestNewPage);
     $("#form-lien").submit(requestNewLink);
+    $("#form-inscription").submit(requestInscription);
 });
 
 $( window ).on( "navigate", function( event, data )
 {
     event.preventDefault();
-    console.log( data );
-    console.log( event );
-    getId();
+    $("#main-content").fadeOut(function()
+        {
+            getId();
+        }
+    );
+
 });
 
 
 /////////////////////
 
-function prependIn(id,form){
-    $(id).prepend(form);
-    form.slideDown();
-}
 
 // Requêtes de démarrage //
 
@@ -257,8 +220,12 @@ function onRequestPageSuccess(page)
 function displayPage()
 {
     $.mobile.changePage("#main");
+    $("#main-content").fadeIn();
     if(page.erreurNotFound){
         $("#content").html("Cette partie de l'histoire n'a pas été encore écrite.");
+        $("#textarea").val("");
+        $("#pageName").empty();
+        $("#author").empty();
         if(!!pseudo){
             $("#bouton-ecrire").fadeIn();
         }
@@ -266,18 +233,28 @@ function displayPage()
     else{
         $("#content").html(page.content.replace(/\n/g, "<br>"));
         $("#textarea").val(page.content);
-        $("#pageName")
-            .fadeIn()
-            .html("Page: "+page.name);
-        $("#author")
-            .fadeIn()
-            .html("Auteur: "+page.author);
+        $("#pageName").html("Page: "+page.name);
+        $("#author").html("Auteur: "+page.author);
     }
 
     $(".hidden-pageid").val(page.name);
 
-    if(page.author === pseudo){
+    if(!page.author || page.author === pseudo){
         $("#bouton-ecrire").fadeIn();
+    }
+    else{
+        $("#bouton-ecrire").fadeOut();
+    }
+
+    if(page.author === pseudo){
+        $("#bouton-supprimer")
+            .fadeIn()
+            .click(function(){
+                requestSuppression(page.name);
+            });
+    }
+    else{
+        $("#bouton-supprimer").fadeOut();
     }
 
     if(!!pseudo){
@@ -288,6 +265,7 @@ function displayPage()
             .on("click",requestDeconnexion);
     }
     else{
+        $("#btn-options").fadeOut();
         $("#pseudo").empty();
         $("#btn-connection")
             .attr("href","#connection")
@@ -329,72 +307,46 @@ function newLink(link)
                         displayFormLien(link.text,link.destination,link.id,link.author);
                     }
                 )
-        )
-    }
-
-    var groupe = $("<div>")
-        .attr("data-role","controlgroup")
-        .attr("data-type","horizontal")
-        .attr("class","ui-controlgroup ui-controlgroup-horizontal ui-corner-all ")
-        .append(
-            $("<div>")
-            .attr("class","ui-controlgroup-controls")
-            .append(bouton)
         );
 
-    return newButtonGroup(groupe)
+        var groupe = $("<div>")
+            .attr("data-role","controlgroup")
+            .attr("data-type","horizontal")
+            .attr("class","ui-controlgroup ui-controlgroup-horizontal ui-corner-all ")
+            .append(
+            $("<div>")
+                .attr("class","ui-controlgroup-controls")
+                .append(bouton)
+        );
+
+        return newButtonGroup(groupe)
+    }
+
+    else{
+        return bouton;
+    }
+
 }
 
 function goToPage(page)
 {
     var url = location.href.split("?")[0];
     history.pushState(null,null,url+"?id="+page);
-    requestPage(page);
+    $("#main-content").fadeOut(function()
+    {
+        requestPage(page);
+    });
 }
 
-
-function hideNavForms(callback)
-{
-    $(".navbar-hide")
-        .fadeOut()
-        .promise()
-        .done(callback);
-    $("#errors").slideUp(function(){
-        $("#errors")
-            .slideDown()
-            .html("");
-
-    })
-}
-
-function hideAll(callback)
-{
-    $(".toHide")
-        .fadeOut()
-        .promise()
-        .done(callback);
-}
 
 ////////////////////
 
 
 // Fonctions utilitaires //
 
-function getURLVariable(variable)
-{
-    var vars = location.search.substring(1).split("&");
-    for (var i=0; i<vars.length; i++){
-        var pair = vars[i].split("=");
-        if(pair[0] == variable){
-            return pair[1];
-        }
-    }
-    return false;
-}
-
 function getId()
 {
-    var id = getURLVariable("id");
+    var id = location.href.split("?id=")[1];
     if (!id) {
         if(!!page.name){
             id = page.name;
@@ -466,6 +418,7 @@ function ajaxProblems(data)
 function ajaxError(resultat, statut, erreur)
 {
     alert("Une erreur AJAX est survenue.");
+    console.log(resultat.responseText);
     console.log(resultat);
     console.log(statut);
     console.log(erreur.message);
@@ -477,45 +430,6 @@ function ajaxError(resultat, statut, erreur)
 
 // Générateurs de formulaires //
 
-function newButton(id, type, text,classe, icon, clickCallback)
-{
-    if(!!icon){
-        var glyph = $("<span>")
-            .attr("class", "glyphicon glyphicon-"+icon)
-            .attr("aria-hidden", "true");
-    }
-    else{
-        var glyph = "";
-    }
-
-    if(!classe){
-        classe = "btn-default"
-    }
-
-    return $('<button>')
-        .attr("class", "ui-btn "+classe)
-        .attr("type", type)
-        .attr("id", id)
-        .click(clickCallback)
-        .append(glyph , " "+text);
-}
-
-function newInput(name, type, placeholder)
-{
-    return $("<input>")
-        .attr("class", "form-control")
-        .attr("type", type)
-        .attr("name",name)
-        .attr("placeholder", placeholder);
-}
-
-function newHiddenInput(name,value)
-{
-    return $("<input>")
-        .attr("type","hidden")
-        .attr("name",name)
-        .attr("value",value);
-}
 
 function newButtonGroup(buttons)
 {
@@ -524,14 +438,5 @@ function newButtonGroup(buttons)
         .append(buttons);
 }
 
-function newFormulaire(id,action,classe ,inputs,submitCallback)
-{
-    $("#"+id).remove();
-    return $("<form>")
-        .attr("id",id)
-        .attr("class",classe)
-        .submit(submitCallback)
-        .append(inputs,newHiddenInput("action",action));
-}
 
 ////////////////////

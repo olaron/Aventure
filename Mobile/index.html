@@ -22,7 +22,7 @@
 		<a id="btn-options" href="#option" class="ui-btn ui-icon-bullets ui-btn-icon-notext"></a>
 	</div>
 
-	<div role="main" class="ui-content">
+	<div id="main-content" role="main" class="ui-content">
 		<div id="infos">
 			<p><span id="pseudo"></span></p>
 			<p><span id="author"></span></p>
@@ -43,8 +43,8 @@
 	</div>
 
 	<div role="main" class="ui-content">
-		<p><a id="bouton-ecrire" href="#edition" class="ui-btn">Modifier</a></p>
-		<p><a href="#" class="ui-btn">Supprimer</a></p>
+		<p><a id="bouton-ecrire" href="#edition" class="ui-btn">Écrire</a></p>
+		<p><a id="bouton-supprimer" href="#" class="ui-btn">Supprimer</a></p>
 		<p><a href="#lien" class="ui-btn">Ajouter un lien</a></p>
 	</div>
 
@@ -86,6 +86,7 @@
 			<input type="password" name="password" placeholder="Mot de passe">
 			<input type="password" name="confirmation" placeholder="Confirmation du mot de passe">
 			<input type="submit" value="S'inscrire">
+			<input type="hidden" name="action" value="inscription">
 		</form>
 	</div>
 
@@ -121,7 +122,7 @@
 
 	<div role="main" class="ui-content">
 		<form id="form-lien" method="POST" action="ajax.php">
-			<input id="form-lien-page" type="hidden" name="id">
+			<input type="hidden" name="id" class="hidden-pageid">
 			<input id="form-lien-id" type="hidden" name="id_link">
 			<input type="hidden" name="action" value="link">
 			<input id="form-lien-choix" type="text" name="choix" placeholder="Texte">

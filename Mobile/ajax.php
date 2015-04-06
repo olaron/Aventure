@@ -167,12 +167,18 @@ elseif($_POST["action"] === "pageSuppression"){
     if(isset($_SESSION["pseudo"]) && !empty($_SESSION["pseudo"])){
         $node = Node::getById($_POST["id"]);
 
-        if($node->getAuthor() === $_SESSION["pseudo"]){
-            Node::deletePage($_POST["id"]);
+        if(!$node){
+
         }
         else{
-            $r["erreurAuteur"] = true;
+            if($node->getAuthor() === $_SESSION["pseudo"]){
+                Node::deletePage($_POST["id"]);
+            }
+            else{
+                $r["erreurAuteur"] = true;
+            }
         }
+
     }
     else{
         $r["erreurLogin"] = true;

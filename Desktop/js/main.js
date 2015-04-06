@@ -157,8 +157,8 @@ function creerFormInscription(){
     )
 }
 
-function requestInscription(){
-
+function requestInscription()
+{
     ajaxRequest(onInscription,$(this).serialize());
     return false;
 }
