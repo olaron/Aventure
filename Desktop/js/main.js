@@ -1,30 +1,3 @@
-
-// TODO
-//
-// faire apparaitre un gif de chargement pendant les requetes ajax
-// afficher l'auteur des liens et colorrer en fonction
-//
-// Corriger le double fadeIn/fadeOut
-// ->new $.Deffered(); .resolve(); $.when(...).done(function(){});
-//
-// refactoring: node->page / id->pageName / action,choice->link / choix->texte
-// corriger les profils des fonctions de génération de formulaire
-// Trouver un nom de projet
-
-/*
-var data = $(this).serialize();
-$(this).find(":input").prop("disabled", true);
-$(this).slideUp(function(){
-    $(this).find(":input").removeAttr("disabled");
-});
-$.ajax({
-    type: $(this).attr("method"),
-    url: $(this).attr("action"),
-    data: data,
-    success: OnSuccess
-});
-*/
-
 ////////// Edition //////////
 
 function creerFormEdition(content){
@@ -111,7 +84,6 @@ function creerFormLien(text,destination,id,auteur){
 }
 
 function deleteLink(id){
-    console.log(id);
     ajaxRequest(onNewLink,{action: "deletelink", id_link: id});
     return false;
 }
@@ -417,19 +389,8 @@ function hideAll(callback){
 
 // Fonctions utilitaires //
 
-function getURLVariable(variable){
-    var vars = location.search.substring(1).split("&");
-    for (var i=0; i<vars.length; i++){
-        var pair = vars[i].split("=");
-        if(pair[0] == variable){
-            return pair[1];
-        }
-    }
-    return false;
-}
-
 function getId(){
-    var id = getURLVariable("id");
+    var id = location.href.split("?id=")[1];
     if (!id) {
         id = "start";
         history.replaceState(null,null,location.href+"?id="+id);
@@ -493,10 +454,13 @@ function ajaxProblems(data){
 
 function ajaxError(resultat, statut, erreur){
     alert("Une erreur AJAX est survenue.");
+    /*
+    console.log(resultat.responseText);
     console.log(resultat);
     console.log(statut);
     console.log(erreur.message);
     console.log(erreur.stack);
+    */
 }
 
 //////////////////////
@@ -547,12 +511,6 @@ function newHiddenInput(name,value){
         .attr("type","hidden")
         .attr("name",name)
         .attr("value",value);
-}
-
-function newInputGroup(inputs){
-    return $("<div>")
-        .attr("class","input-group")
-        .append(inputs);
 }
 
 function newButtonGroup(buttons){

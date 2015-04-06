@@ -58,6 +58,10 @@ function displayFormLien(text,destination,id)
     $("#form-lien-destination").val(destination);
     $("#form-lien-id").val(id);
     $("#form-lien-page").val(page.name);
+    $("#supprimer-lien").click(function()
+    {
+        deleteLink(id);
+    });
 }
 
 function deleteLink(id)
@@ -169,6 +173,7 @@ $(document).ready(function()
     $("#form-edition").submit(requestNewPage);
     $("#form-lien").submit(requestNewLink);
     $("#form-inscription").submit(requestInscription);
+
 });
 
 $( window ).on( "navigate", function( event, data )
@@ -304,7 +309,7 @@ function newLink(link)
                 .text("\"Modifier\"")
                 .click(function()
                     {
-                        displayFormLien(link.text,link.destination,link.id,link.author);
+                        displayFormLien(link.text,link.destination,link.id);
                     }
                 )
         );
@@ -418,11 +423,13 @@ function ajaxProblems(data)
 function ajaxError(resultat, statut, erreur)
 {
     alert("Une erreur AJAX est survenue.");
+    /*
     console.log(resultat.responseText);
     console.log(resultat);
     console.log(statut);
     console.log(erreur.message);
     console.log(erreur.stack);
+    */
 }
 
 //////////////////////
